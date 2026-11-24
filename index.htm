@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>WCD Pension Life Certificate — Chanchal-I, Malda</title>
+  <meta name="description" content="Mobile-first Login and Control Manager Portal for WCD Pension Life Certificate, Chanchal-I, Malda." />
+  <meta name="theme-color" content="#1d4ed8" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-900: #0f3a8a;
+      --blue-700: #1d4ed8;
+      --blue-600: #2563eb;
+      --sky-500: #0284c7;
+      --ice-50: #eff6ff;
+      --ice-100: #dbeafe;
+      --slate-900: #0f172a;
+      --slate-600: #475569;
+      --border: #e2e8f0;
+      --white: #ffffff;
+      --danger: #dc2626;
+      --danger-hover: #b91c1c;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--slate-900);
+      min-height: 100vh;
+      background:
+        radial-gradient(960px 440px at 12% -8%, rgba(59, 130, 246, 0.14), transparent 60%),
+        radial-gradient(840px 420px at 92% 0%, rgba(14, 165, 233, 0.12), transparent 55%),
+        linear-gradient(180deg, #eff6ff 0%, #f8fbff 48%, #ffffff 100%);
+      -webkit-tap-highlight-color: transparent;
+      display: flex;
+      flex-direction: column;
+    }
+
+    h1, h2, h3, .font-display {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .tabular { font-variant-numeric: tabular-nums; }
+    .hidden { display: none !important; }
+
+    .portal-header {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 54%, var(--sky-500) 100%);
+      color: var(--white);
+      padding: 14px 16px;
+      box-shadow: 0 10px 28px -12px rgba(29, 78, 216, 0.45);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .logo-box {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-title {
+      font-size: clamp(0.98rem, 2.6vw, 1.3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      letter-spacing: -0.015em;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.88);
+      margin-top: 2px;
+    }
+
+    .signout-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 10px;
+      border: 1px solid #f87171;
+      background: var(--danger);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+      transition: background 150ms ease, transform 120ms ease;
+    }
+
+    .signout-btn:hover { background: var(--danger-hover); }
+    .signout-btn:active { transform: scale(0.98); }
+
+    .live-pill {
+      min-height: 40px;
+      padding: 0 11px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--white);
+      font-size: 0.8125rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .live-ball-wrap {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .live-ball-ping {
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: #34d399;
+      animation: livePing 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+    }
+
+    .live-ball-core {
+      position: relative;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.85);
+    }
+
+    @keyframes livePing {
+      0% { transform: scale(1); opacity: 0.85; }
+      75%, 100% { transform: scale(2.2); opacity: 0; }
+    }
+
+    .main-wrap {
+      width: 100%;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 16px 14px 32px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid rgba(203, 213, 225, 0.75);
+      border-radius: 20px;
+      box-shadow: 0 16px 40px -24px rgba(15, 58, 138, 0.25);
+      padding: 22px 18px;
+    }
+
+    @media (min-width: 640px) {
+      .card { padding: 26px; }
+    }
+
+    .auth-shell {
+      max-width: 460px;
+      margin: 12px auto 0;
+    }
+
+    .seg-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: var(--ice-50);
+      border: 1px solid var(--ice-100);
+      padding: 4px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+    }
+
+    .seg-tab {
+      min-height: 44px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--slate-600);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 150ms ease;
+    }
+
+    .seg-tab.active {
+      background: var(--white);
+      color: var(--blue-700);
+      box-shadow: 0 2px 8px rgba(29, 78, 216, 0.12);
+    }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .input, .select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      background: #ffffff;
+      color: var(--slate-900);
+      font-family: inherit;
+      font-size: 0.9375rem;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .input:focus, .select:focus {
+      border-color: var(--blue-600);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+
+    .btn-primary {
+      width: 100%;
+      min-height: 48px;
+      border: none;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--blue-700) 0%, var(--sky-500) 100%);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 0.9375rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 10px 22px -10px rgba(29, 78, 216, 0.55);
+      transition: transform 120ms ease, opacity 150ms ease;
+    }
+
+    .btn-primary:active { transform: scale(0.985); }
+    .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+
+    .btn-outline {
+      min-height: 42px;
+      padding: 0 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 11px;
+      background: var(--white);
+      color: var(--slate-900);
+      font-family: inherit;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-outline:hover { background: #f8fafc; border-color: #94a3b8; }
+
+    .btn-danger {
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid #fecaca;
+      border-radius: 10px;
+      background: #fef2f2;
+      color: var(--danger);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .alert {
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+    .alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+
+    .profile-banner {
+      background: linear-gradient(135deg, #0f3a8a 0%, #1d4ed8 55%, #0284c7 100%);
+      color: #ffffff;
+      border-radius: 20px;
+      padding: 18px 20px;
+      margin-bottom: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 16px 36px -20px rgba(15, 58, 138, 0.5);
+    }
+
+    .profile-name {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 2px;
+    }
+
+    .meta-line {
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.9);
+      margin-top: 4px;
+    }
+
+    .row-meta {
+      font-size: 0.84rem;
+      color: var(--slate-600);
+      margin-top: 4px;
+    }
+
+    .gp-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    @media (min-width: 640px) {
+      .gp-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+
+    .gp-link {
+      min-height: 48px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid #dbeafe;
+      background: #f8fbff;
+      color: var(--blue-900);
+      font-family: inherit;
+      font-size: 0.8125rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 150ms ease, border-color 150ms ease;
+    }
+
+    .gp-link:hover {
+      background: #eff6ff;
+      border-color: var(--blue-600);
+    }
+
+    /* Shared Common Identity + Embedded Portal Iframe */
+    .frame-bar {
+      background: var(--white);
+      border: 1px solid #bfdbfe;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 8px 24px -18px rgba(29, 78, 216, 0.35);
+    }
+
+    .frame-shell {
+      background: var(--white);
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 16px 38px -24px rgba(15, 58, 138, 0.3);
+    }
+
+    .portal-iframe {
+      display: block;
+      width: 100%;
+      height: calc(100dvh - 210px);
+      min-height: 500px;
+      border: none;
+      background: #ffffff;
+    }
+
+    .user-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .user-row {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: var(--white);
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .row-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (min-width: 640px) {
+      .toolbar { grid-template-columns: 1fr 220px auto; }
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.52);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+      padding: 0;
+    }
+
+    @media (min-width: 640px) {
+      .modal-backdrop { align-items: center; padding: 16px; }
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-width: 480px;
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding: 20px 18px 28px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    @media (min-width: 640px) {
+      .modal-sheet { border-radius: 20px; padding: 24px; }
+    }
+
+    .footer-note {
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--slate-600);
+      padding: 14px 16px 20px;
+    }
+  </style>
+</head>
+<body>
+  <header class="portal-header">
+    <div class="header-inner">
+      <div class="brand-row">
+        <div class="logo-box">
+          <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" width="42" height="42" aria-hidden="true">
+            <path d="M32 5L54 13.5V30.5C54 44.2 44.6 54.4 32 59C19.4 54.4 10 44.2 10 30.5V13.5L32 5Z" fill="#ffffff" fill-opacity="0.18" stroke="#ffffff" stroke-width="2.4" stroke-linejoin="round"/>
+            <circle cx="32" cy="29" r="12.5" fill="#ffffff" fill-opacity="0.96"/>
+            <circle cx="32" cy="24.2" r="3.4" fill="#1d4ed8"/>
+            <path d="M24.8 34.8C25.4 31.4 28.3 29.4 32 29.4C35.7 29.4 38.6 31.4 39.2 34.8" stroke="#1d4ed8" stroke-width="2.4" stroke-linecap="round"/>
+            <path d="M27.5 46.5L30.8 49.5L37 43.2" stroke="#ffffff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="brand-title">WCD Pension Life Certificate</h1>
+          <p class="brand-sub">Chanchal-I, Malda</p>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+        <div class="live-pill tabular" title="Currently online users">
+          <span class="live-ball-wrap" aria-hidden="true">
+            <span class="live-ball-ping"></span>
+            <span class="live-ball-core"></span>
+          </span>
+          <span>Live: <span id="headerLiveCount">0</span></span>
+        </div>
+        <button id="btnSignOutHeader" class="signout-btn hidden" type="button">Sign Out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <!-- AUTH VIEW -->
+    <section id="authView" class="auth-shell">
+      <div class="card">
+        <div class="seg-tabs" role="tablist">
+          <button id="tabSignin" class="seg-tab active" type="button" role="tab" aria-selected="true">Sign In</button>
+          <button id="tabSignup" class="seg-tab" type="button" role="tab" aria-selected="false">Sign Up</button>
+        </div>
+
+        <div id="authMessage" class="alert hidden"></div>
+
+        <!-- Sign In Form -->
+        <form id="signinForm">
+          <div class="field">
+            <label for="signinMobile">Mobile No</label>
+            <input id="signinMobile" class="input tabular" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" required />
+          </div>
+          <div class="field">
+            <label for="signinPassword">Password</label>
+            <input id="signinPassword" class="input" type="password" placeholder="Enter your password" required />
+          </div>
+          <button id="signinBtn" class="btn-primary" type="submit">Sign In</button>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signupForm" class="hidden">
+          <div class="field">
+            <label for="signupGp">Gram Panchayat</label>
+            <select id="signupGp" class="select" required>
+              <option value="">Select Gram Panchayat</option>
+              <option value="ALIHANDA">ALIHANDA</option>
+              <option value="BHAGABANPUR">BHAGABANPUR</option>
+              <option value="CHANCHAL">CHANCHAL</option>
+              <option value="KALIGRAM">KALIGRAM</option>
+              <option value="KHARBA">KHARBA</option>
+              <option value="MAHANANDAPUR">MAHANANDAPUR</option>
+              <option value="MAKDAMPUR">MAKDAMPUR</option>
+              <option value="MOTIHARPUR">MOTIHARPUR</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="signupName">User Name</label>
+            <input id="signupName" class="input" type="text" placeholder="Enter your full name" required />
+          </div>
+          <div class="field">
+            <label for="signupMobile">Mobile No</label>
+            <input id="signupMobile" class="input tabular" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" required />
+          </div>
+          <div class="field">
+            <label for="signupPassword">Password</label>
+            <input id="signupPassword" class="input" type="password" minlength="4" placeholder="Create password (min 4 chars)" required />
+          </div>
+          <p style="font-size:0.8rem;color:#475569;margin-bottom:14px;">
+            New registrations are created with <strong>User</strong> role by default.
+          </p>
+          <button id="signupBtn" class="btn-primary" type="submit">Create Account</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- COMMON EMBEDDED PORTAL VIEW (Used by User auto-load AND Admin portal/GP preview) -->
+    <section id="portalFrameSection" class="hidden">
+      <div class="frame-bar">
+        <div>
+          <div id="frameOperatorName" style="font-weight:700;font-size:1rem;color:#0f172a;"></div>
+          <div id="frameOperatorMeta" class="row-meta tabular" style="margin-top:2px;"></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button id="btnBackToAdmin" class="btn-outline hidden" type="button" style="border-color:#93c5fd;color:#1d4ed8;">← Control Manager</button>
+          <button id="btnReloadFrame" class="btn-outline" type="button">Reload Page</button>
+        </div>
+      </div>
+
+      <div class="frame-shell">
+        <iframe id="portalFrame" class="portal-iframe" title="Assigned Gram Panchayat Portal"></iframe>
+      </div>
+    </section>
+
+    <!-- ADMIN CONTROL VIEW -->
+    <section id="adminView" class="hidden">
+      <div class="profile-banner">
+        <div>
+          <p style="font-size:0.78rem;font-weight:700;color:#dbeafe;letter-spacing:0.03em;">Block Administrator · Full Access</p>
+          <h2 id="adminDisplayName" class="profile-name"></h2>
+          <p class="meta-line">
+            Gram Panchayat: <strong id="adminDisplayGp"></strong> · Mobile: <span id="adminDisplayMobile" class="tabular"></span> · Role: Admin
+          </p>
+        </div>
+        <button id="btnOpenAdminPortal" type="button" class="btn-outline" style="background:#ffffff;color:#1e40af;border-color:#ffffff;">Admin Portal</button>
+      </div>
+
+      <div class="card" style="margin-bottom:18px;">
+        <h3 style="font-size:1.05rem;font-weight:700;">Gram Panchayat Portals (Full Access)</h3>
+        <div class="gp-grid" id="adminGpGrid"></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;">
+              <h3 style="font-size:1.05rem;font-weight:700;">Control Manager — Users</h3>
+              <span class="tabular" style="display:inline-flex;align-items:center;gap:6px;font-size:0.78rem;font-weight:700;color:#047857;">
+                <span class="live-ball-wrap" aria-hidden="true">
+                  <span class="live-ball-ping"></span>
+                  <span class="live-ball-core"></span>
+                </span>
+                <span><span id="adminLiveCount">0</span> Live Online</span>
+              </span>
+            </div>
+            <p id="adminStatsText" style="font-size:0.84rem;color:#475569;margin-top:2px;" class="tabular"></p>
+          </div>
+          <button id="btnOpenAddUser" class="btn-primary" type="button" style="width:auto;padding:0 18px;">+ Add User</button>
+        </div>
+
+        <div class="toolbar">
+          <input id="adminSearchInput" class="input" type="search" placeholder="Search name or mobile no..." />
+          <select id="adminGpFilter" class="select">
+            <option value="">All Gram Panchayats</option>
+              <option value="ALIHANDA">ALIHANDA</option>
+              <option value="BHAGABANPUR">BHAGABANPUR</option>
+              <option value="CHANCHAL">CHANCHAL</option>
+              <option value="KALIGRAM">KALIGRAM</option>
+              <option value="KHARBA">KHARBA</option>
+              <option value="MAHANANDAPUR">MAHANANDAPUR</option>
+              <option value="MAKDAMPUR">MAKDAMPUR</option>
+              <option value="MOTIHARPUR">MOTIHARPUR</option>
+          </select>
+          <button id="btnRefreshUsers" class="btn-outline" type="button">Refresh</button>
+        </div>
+
+        <div id="adminAlert" class="alert hidden" style="margin-top:12px;"></div>
+        <div id="adminUsersList" class="user-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-note">
+    WCD Pension Life Certificate · Chanchal-I Development Block, Malda
+  </footer>
+
+  <!-- ADD USER MODAL -->
+  <div id="addUserModal" class="modal-backdrop hidden">
+    <div class="modal-sheet">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="font-size:1.1rem;font-weight:700;">Add User to Control Manager</h3>
+        <button id="btnCloseAddModal" class="btn-outline" type="button" style="min-height:38px;padding:0 12px;">Close</button>
+      </div>
+      <form id="addUserForm">
+        <div class="field">
+          <label for="addGp">Gram Panchayat</label>
+          <select id="addGp" class="select" required>
+            <option value="">Select Gram Panchayat</option>
+              <option value="ALIHANDA">ALIHANDA</option>
+              <option value="BHAGABANPUR">BHAGABANPUR</option>
+              <option value="CHANCHAL">CHANCHAL</option>
+              <option value="KALIGRAM">KALIGRAM</option>
+              <option value="KHARBA">KHARBA</option>
+              <option value="MAHANANDAPUR">MAHANANDAPUR</option>
+              <option value="MAKDAMPUR">MAKDAMPUR</option>
+              <option value="MOTIHARPUR">MOTIHARPUR</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="addName">User Name</label>
+          <input id="addName" class="input" type="text" required />
+        </div>
+        <div class="field">
+          <label for="addMobile">Mobile No</label>
+          <input id="addMobile" class="input tabular" type="tel" inputmode="numeric" maxlength="10" required />
+        </div>
+        <div class="field">
+          <label for="addPassword">Password</label>
+          <input id="addPassword" class="input" type="password" minlength="4" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="field">
+            <label for="addRole">Role</label>
+            <select id="addRole" class="select">
+              <option value="User">User</option>
+              <option value="Admin">Admin</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="addPerm">Permission</label>
+            <select id="addPerm" class="select">
+              <option value="Allowed">Allowed</option>
+              <option value="Blocked">Blocked</option>
+            </select>
+          </div>
+        </div>
+        <button id="addUserSubmitBtn" class="btn-primary" type="submit">Save User</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHVrn05yebeMyVTwwmtY7Zy1S1kfoamfpz2zK39cqheNHsvoV4iP3yGVNgJU1vWM9t/exec";
+    const GRAM_PANCHAYATS = ["ALIHANDA","BHAGABANPUR","CHANCHAL","KALIGRAM","KHARBA","MAHANANDAPUR","MAKDAMPUR","MOTIHARPUR"];
+
+    let currentToken = '';
+    let currentUser = null;
+    let allUsers = [];
+    let activeFrameUrl = '';
+    let livePollTimer = null;
+    let heartbeatTimer = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function setLiveCountUI(count) {
+      if (typeof count === 'number' && !Number.isNaN(count)) {
+        $('headerLiveCount').textContent = String(count);
+        if ($('adminLiveCount')) {
+          $('adminLiveCount').textContent = String(count);
+        }
+      }
+    }
+
+    async function refreshLiveCount() {
+      try {
+        const res = await apiPost({ action: 'getLiveCount' });
+        if (res.ok && typeof res.liveCount === 'number') {
+          setLiveCountUI(res.liveCount);
+        }
+      } catch (e) {}
+    }
+
+    function startHeartbeat() {
+      if (heartbeatTimer) clearInterval(heartbeatTimer);
+      heartbeatTimer = setInterval(async () => {
+        if (!currentToken) return;
+        try {
+          const res = await apiPost({ action: 'heartbeat', token: currentToken });
+          if (res.ok && typeof res.liveCount === 'number') {
+            setLiveCountUI(res.liveCount);
+          }
+        } catch (e) {}
+      }, 25000);
+    }
+
+    function showAuthMsg(msg, isError) {
+      const el = $('authMessage');
+      el.textContent = msg;
+      el.className = 'alert ' + (isError ? 'alert-error' : 'alert-success');
+      el.classList.remove('hidden');
+    }
+
+    function clearAuthMsg() {
+      $('authMessage').classList.add('hidden');
+    }
+
+    function showAdminAlert(msg, isError) {
+      const el = $('adminAlert');
+      el.textContent = msg;
+      el.className = 'alert ' + (isError ? 'alert-error' : 'alert-success');
+      el.classList.remove('hidden');
+      setTimeout(() => el.classList.add('hidden'), 4500);
+    }
+
+    function buildGpFilename(gp) {
+      return String(gp || 'PORTAL').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_') + '.htm';
+    }
+
+    async function apiPost(payload) {
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+
+    function openPortalInFrame(targetFile, displayContext, isAdminUser) {
+      const q = '?user=' + encodeURIComponent(currentUser.userName) +
+        '&gp=' + encodeURIComponent(displayContext) +
+        '&mobile=' + encodeURIComponent(currentUser.mobileNo) +
+        '&role=' + encodeURIComponent(currentUser.role);
+
+      activeFrameUrl = targetFile + q;
+      $('adminView').classList.add('hidden');
+      $('portalFrameSection').classList.remove('hidden');
+
+      $('frameOperatorName').textContent = currentUser.userName;
+      $('frameOperatorMeta').textContent =
+        'Gram Panchayat: ' + displayContext + ' · Mobile: ' + currentUser.mobileNo + ' · Role: ' + currentUser.role;
+
+      $('btnBackToAdmin').classList.toggle('hidden', !isAdminUser);
+      $('portalFrame').src = activeFrameUrl;
+    }
+
+    function renderLoggedInView() {
+      $('authView').classList.add('hidden');
+      $('btnSignOutHeader').classList.remove('hidden');
+      startHeartbeat();
+
+      if (currentUser.role === 'Admin') {
+        $('portalFrameSection').classList.add('hidden');
+        $('adminView').classList.remove('hidden');
+        $('adminDisplayName').textContent = currentUser.userName;
+        $('adminDisplayGp').textContent = currentUser.gramPanchayat;
+        $('adminDisplayMobile').textContent = currentUser.mobileNo;
+        renderAdminGpLinks();
+        loadAdminUsers();
+      } else {
+        const gpFile = buildGpFilename(currentUser.gramPanchayat);
+        openPortalInFrame(gpFile, currentUser.gramPanchayat, false);
+      }
+    }
+
+    async function signOut() {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+      const tokenToClear = currentToken;
+      currentToken = '';
+      currentUser = null;
+      allUsers = [];
+      activeFrameUrl = '';
+      $('portalFrame').src = 'about:blank';
+      $('portalFrameSection').classList.add('hidden');
+      $('adminView').classList.add('hidden');
+      $('btnSignOutHeader').classList.add('hidden');
+      $('authView').classList.remove('hidden');
+      $('signinPassword').value = '';
+      clearAuthMsg();
+      if (tokenToClear) {
+        try {
+          const res = await apiPost({ action: 'signout', token: tokenToClear });
+          if (res.ok && typeof res.liveCount === 'number') {
+            setLiveCountUI(res.liveCount);
+            return;
+          }
+        } catch (e) {}
+      }
+      refreshLiveCount();
+    }
+
+    function renderAdminGpLinks() {
+      const grid = $('adminGpGrid');
+      grid.innerHTML = '';
+      GRAM_PANCHAYATS.forEach((gp) => {
+        const file = buildGpFilename(gp);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'gp-link';
+
+        const spanName = document.createElement('span');
+        spanName.textContent = gp;
+
+        const arrow = document.createElement('span');
+        arrow.style.color = '#2563eb';
+        arrow.style.fontWeight = '700';
+        arrow.textContent = '→';
+
+        btn.appendChild(spanName);
+        btn.appendChild(arrow);
+        btn.onclick = () => openPortalInFrame(file, gp, true);
+        grid.appendChild(btn);
+      });
+    }
+
+    async function loadAdminUsers() {
+      try {
+        const res = await apiPost({ action: 'listUsers', token: currentToken });
+        if (!res.ok) {
+          showAdminAlert(res.error || 'Could not load users.', true);
+          return;
+        }
+        allUsers = res.users || [];
+        if (typeof res.liveCount === 'number') {
+          setLiveCountUI(res.liveCount);
+        }
+        renderAdminUsers();
+      } catch (err) {
+        showAdminAlert(err.message || 'Failed to load Control Manager.', true);
+      }
+    }
+
+    function renderAdminUsers() {
+      const search = $('adminSearchInput').value.trim().toLowerCase();
+      const gpFilter = $('adminGpFilter').value;
+
+      const filtered = allUsers.filter((u) => {
+        if (gpFilter && u.gramPanchayat !== gpFilter) return false;
+        if (search && !u.userName.toLowerCase().includes(search) && !u.mobileNo.includes(search)) {
+          return false;
+        }
+        return true;
+      });
+
+      const allowedCount = allUsers.filter((u) => u.permission === 'Allowed').length;
+      const adminCount = allUsers.filter((u) => u.role === 'Admin').length;
+      $('adminStatsText').textContent =
+        allUsers.length + ' total · ' + allowedCount + ' allowed · ' + adminCount + ' admins';
+
+      const list = $('adminUsersList');
+      list.innerHTML = '';
+
+      if (!filtered.length) {
+        const empty = document.createElement('p');
+        empty.style.cssText = 'padding:20px 0;text-align:center;color:#64748b;font-size:0.9rem;';
+        empty.textContent = 'No matching users found.';
+        list.appendChild(empty);
+        return;
+      }
+
+      filtered.forEach((u) => {
+        const row = document.createElement('div');
+        row.className = 'user-row';
+
+        const info = document.createElement('div');
+        const title = document.createElement('div');
+        title.style.fontWeight = '700';
+        title.textContent = u.userName;
+
+        const meta = document.createElement('div');
+        meta.className = 'row-meta tabular';
+        meta.textContent =
+          u.gramPanchayat +
+          ' · ' +
+          u.mobileNo +
+          ' · ' +
+          u.role +
+          ' · ' +
+          u.permission +
+          (u.hasActiveSession ? ' · Active Session' : '');
+
+        info.appendChild(title);
+        info.appendChild(meta);
+
+        const actions = document.createElement('div');
+        actions.className = 'row-actions';
+
+        const isSelf = u.mobileNo === currentUser.mobileNo;
+
+        if (u.hasActiveSession && !isSelf) {
+          const resetSessionBtn = document.createElement('button');
+          resetSessionBtn.type = 'button';
+          resetSessionBtn.className = 'btn-outline';
+          resetSessionBtn.style.minHeight = '42px';
+          resetSessionBtn.style.borderColor = '#bfdbfe';
+          resetSessionBtn.style.color = '#1d4ed8';
+          resetSessionBtn.textContent = 'Reset Session';
+          resetSessionBtn.onclick = async () => {
+            resetSessionBtn.disabled = true;
+            try {
+              const res = await apiPost({
+                action: 'clearSession',
+                token: currentToken,
+                targetMobileNo: u.mobileNo,
+              });
+              if (res.ok) {
+                if (typeof res.liveCount === 'number') {
+                  setLiveCountUI(res.liveCount);
+                }
+                showAdminAlert('Session reset for ' + u.userName + '.', false);
+                await loadAdminUsers();
+              } else {
+                showAdminAlert(res.error || 'Reset failed.', true);
+              }
+            } finally {
+              resetSessionBtn.disabled = false;
+            }
+          };
+          actions.appendChild(resetSessionBtn);
+        }
+
+        const togglePermBtn = document.createElement('button');
+        togglePermBtn.type = 'button';
+        togglePermBtn.className = 'btn-outline';
+        togglePermBtn.style.minHeight = '42px';
+        togglePermBtn.disabled = isSelf;
+        togglePermBtn.textContent = u.permission === 'Allowed' ? 'Block' : 'Allow';
+        togglePermBtn.onclick = async () => {
+          togglePermBtn.disabled = true;
+          try {
+            const nextPerm = u.permission === 'Allowed' ? 'Blocked' : 'Allowed';
+            const res = await apiPost({
+              action: 'updateUser',
+              token: currentToken,
+              targetMobileNo: u.mobileNo,
+              permission: nextPerm,
+            });
+            if (res.ok) {
+              showAdminAlert(u.userName + ' set to ' + nextPerm + '.', false);
+              await loadAdminUsers();
+            } else {
+              showAdminAlert(res.error || 'Update failed.', true);
+            }
+          } finally {
+            togglePermBtn.disabled = isSelf;
+          }
+        };
+
+        const toggleRoleBtn = document.createElement('button');
+        toggleRoleBtn.type = 'button';
+        toggleRoleBtn.className = 'btn-outline';
+        toggleRoleBtn.style.minHeight = '42px';
+        toggleRoleBtn.disabled = isSelf;
+        toggleRoleBtn.textContent = u.role === 'Admin' ? 'Make User' : 'Make Admin';
+        toggleRoleBtn.onclick = async () => {
+          toggleRoleBtn.disabled = true;
+          try {
+            const nextRole = u.role === 'Admin' ? 'User' : 'Admin';
+            const res = await apiPost({
+              action: 'updateUser',
+              token: currentToken,
+              targetMobileNo: u.mobileNo,
+              role: nextRole,
+            });
+            if (res.ok) {
+              showAdminAlert(u.userName + ' role updated to ' + nextRole + '.', false);
+              await loadAdminUsers();
+            } else {
+              showAdminAlert(res.error || 'Update failed.', true);
+            }
+          } finally {
+            toggleRoleBtn.disabled = isSelf;
+          }
+        };
+
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'btn-danger';
+        removeBtn.textContent = 'Remove';
+        let armed = false;
+        removeBtn.onclick = async () => {
+          if (!armed) {
+            armed = true;
+            removeBtn.textContent = 'Confirm?';
+            setTimeout(() => {
+              armed = false;
+              removeBtn.textContent = 'Remove';
+            }, 3500);
+            return;
+          }
+          removeBtn.disabled = true;
+          try {
+            const res = await apiPost({
+              action: 'removeUser',
+              token: currentToken,
+              targetMobileNo: u.mobileNo,
+            });
+            if (res.ok) {
+              showAdminAlert(u.userName + ' removed.', false);
+              await loadAdminUsers();
+            } else {
+              showAdminAlert(res.error || 'Remove failed.', true);
+            }
+          } finally {
+            removeBtn.disabled = false;
+          }
+        };
+
+        actions.appendChild(togglePermBtn);
+        actions.appendChild(toggleRoleBtn);
+        if (!isSelf) {
+          actions.appendChild(removeBtn);
+        }
+
+        row.appendChild(info);
+        row.appendChild(actions);
+        list.appendChild(row);
+      });
+    }
+
+    $('tabSignin').onclick = () => {
+      $('tabSignin').classList.add('active');
+      $('tabSignup').classList.remove('active');
+      $('signinForm').classList.remove('hidden');
+      $('signupForm').classList.add('hidden');
+      clearAuthMsg();
+    };
+
+    $('tabSignup').onclick = () => {
+      $('tabSignup').classList.add('active');
+      $('tabSignin').classList.remove('active');
+      $('signupForm').classList.remove('hidden');
+      $('signinForm').classList.add('hidden');
+      clearAuthMsg();
+    };
+
+    $('signinForm').onsubmit = async (e) => {
+      e.preventDefault();
+      clearAuthMsg();
+      $('signinBtn').disabled = true;
+      $('signinBtn').textContent = 'Signing in...';
+      try {
+        const res = await apiPost({
+          action: 'signin',
+          mobileNo: $('signinMobile').value,
+          password: $('signinPassword').value,
+        });
+        if (!res.ok) {
+          showAuthMsg(res.error || 'Sign in failed.', true);
+          return;
+        }
+        currentToken = res.token;
+        currentUser = res.user;
+        if (typeof res.liveCount === 'number') {
+          setLiveCountUI(res.liveCount);
+        }
+        renderLoggedInView();
+      } catch (err) {
+        showAuthMsg(err.message || 'Connection error.', true);
+      } finally {
+        $('signinBtn').disabled = false;
+        $('signinBtn').textContent = 'Sign In';
+      }
+    };
+
+    $('signupForm').onsubmit = async (e) => {
+      e.preventDefault();
+      clearAuthMsg();
+      $('signupBtn').disabled = true;
+      $('signupBtn').textContent = 'Creating account...';
+      try {
+        const res = await apiPost({
+          action: 'signup',
+          gramPanchayat: $('signupGp').value,
+          userName: $('signupName').value,
+          mobileNo: $('signupMobile').value,
+          password: $('signupPassword').value,
+        });
+        if (!res.ok) {
+          showAuthMsg(res.error || 'Sign up failed.', true);
+          return;
+        }
+        if (res.token && res.user) {
+          currentToken = res.token;
+          currentUser = res.user;
+          if (typeof res.liveCount === 'number') {
+            setLiveCountUI(res.liveCount);
+          }
+          renderLoggedInView();
+        } else {
+          showAuthMsg(res.message || 'Registered! Please sign in.', false);
+          $('tabSignin').click();
+        }
+      } catch (err) {
+        showAuthMsg(err.message || 'Connection error.', true);
+      } finally {
+        $('signupBtn').disabled = false;
+        $('signupBtn').textContent = 'Create Account';
+      }
+    };
+
+    $('btnSignOutHeader').onclick = signOut;
+    $('btnOpenAdminPortal').onclick = () => {
+      openPortalInFrame('admin.htm', currentUser.gramPanchayat, true);
+    };
+    $('btnBackToAdmin').onclick = () => {
+      $('portalFrame').src = 'about:blank';
+      $('portalFrameSection').classList.add('hidden');
+      $('adminView').classList.remove('hidden');
+      loadAdminUsers();
+    };
+    $('btnReloadFrame').onclick = () => {
+      if (activeFrameUrl) {
+        $('portalFrame').src = activeFrameUrl;
+      }
+    };
+
+    $('adminSearchInput').oninput = renderAdminUsers;
+    $('adminGpFilter').onchange = renderAdminUsers;
+    $('btnRefreshUsers').onclick = loadAdminUsers;
+
+    $('btnOpenAddUser').onclick = () => $('addUserModal').classList.remove('hidden');
+    $('btnCloseAddModal').onclick = () => $('addUserModal').classList.add('hidden');
+
+    $('addUserForm').onsubmit = async (e) => {
+      e.preventDefault();
+      $('addUserSubmitBtn').disabled = true;
+      try {
+        const res = await apiPost({
+          action: 'addUser',
+          token: currentToken,
+          gramPanchayat: $('addGp').value,
+          userName: $('addName').value,
+          mobileNo: $('addMobile').value,
+          password: $('addPassword').value,
+          role: $('addRole').value,
+          permission: $('addPerm').value,
+        });
+        if (!res.ok) {
+          showAdminAlert(res.error || 'Could not add user.', true);
+          return;
+        }
+        $('addUserModal').classList.add('hidden');
+        $('addUserForm').reset();
+        showAdminAlert('User added to Control Manager.', false);
+        loadAdminUsers();
+      } catch (err) {
+        showAdminAlert(err.message || 'Error adding user.', true);
+      } finally {
+        $('addUserSubmitBtn').disabled = false;
+      }
+    };
+
+    refreshLiveCount();
+    livePollTimer = setInterval(refreshLiveCount, 20000);
+  </script>
+</body>
+</html>
