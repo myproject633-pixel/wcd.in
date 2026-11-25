@@ -214,14 +214,74 @@
       position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
     }
     .mirror { transform: scaleX(-1); }
-    .tele-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      background: #1e293b;
-      font-size: 11.5px;
+    .rd-steps-wrap {
+      background: #020617;
+      border-top: 1px solid #1e293b;
+      padding: 10px;
     }
-    .tele-cell { background: #0f172a; padding: 8px 10px; }
+    .rd-steps-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+    .rd-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .rd-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .rd-step.pass {
+      border-color: rgba(34, 197, 94, 0.55);
+      background: rgba(6, 78, 59, 0.55);
+      color: #bbf7d0;
+    }
+    .rd-step-l {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .rd-tick {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rd-step.pass .rd-tick {
+      border-color: #22c55e;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    .rd-det {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      opacity: 0.85;
+      white-space: nowrap;
+    }
     .alert {
       padding: 11px 14px;
       border-radius: 12px;
@@ -230,6 +290,7 @@
     }
     .alert-err { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     .alert-ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 12px; padding: 10px 12px; border-radius: 10px; }
   </style>
 </head>
 <body>
@@ -362,16 +423,16 @@
           <div id="existingFormLink" class="hidden" style="margin-top:6px;font-size:12px;color:#475569;"></div>
         </div>
 
-        <!-- BENEFICIARY KYC DATA — FACE LIVENESS RD -->
+        <!-- BENEFICIARY KYC DATA — 7-STEP FACE RD LIVENESS -->
         <div>
-          <div style="font-size:13px;font-weight:700;">Beneficiary KYC Data (Aadhaar Face RD Liveness)</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:8px;">Tracks eyes, blinks, lip movement, ears &amp; head movement</div>
-          <button id="btnStartKyc" class="btn btn-grad" type="button" style="width:100%;">Start Face Liveness RD Camera</button>
+          <div style="font-size:13px;font-weight:700;">Beneficiary KYC Data (Face RD Authentication)</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:8px;">All 7 steps must show green tick before saving</div>
+          <button id="btnStartKyc" class="btn btn-grad" type="button" style="width:100%;">Start Face RD Authentication</button>
 
           <div id="kycCamBox" class="cam-box hidden">
-            <div style="padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;">
-              <span id="kycInstruction">Loading Face Landmarker...</span>
-              <div style="display:flex;gap:6px;">
+            <div style="padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;gap:8px;">
+              <span id="kycInstruction" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Loading Face Landmarker...</span>
+              <div style="display:flex;gap:6px;flex-shrink:0;">
                 <button id="btnKycFlip" class="btn btn-outline" type="button" style="min-height:32px;padding:0 10px;font-size:12px;">Flip</button>
                 <button id="btnKycClose" class="btn btn-outline" type="button" style="min-height:32px;padding:0 10px;font-size:12px;">Close</button>
               </div>
@@ -380,21 +441,31 @@
               <video id="kycVideo" autoplay playsinline muted class="mirror"></video>
               <canvas id="kycCanvas"></canvas>
             </div>
-            <div class="tele-grid mono">
-              <div class="tele-cell"><div style="color:#94a3b8;">Eye Detection</div><div id="tEye">Waiting</div></div>
-              <div class="tele-cell"><div style="color:#94a3b8;">Blink Detection</div><div id="tBlink">0 / 2</div></div>
-              <div class="tele-cell"><div style="color:#94a3b8;">Lips Movement</div><div id="tLip">Waiting</div></div>
-              <div class="tele-cell"><div style="color:#94a3b8;">Ears &amp; Head</div><div id="tHead">0°</div></div>
+            <div class="rd-steps-wrap">
+              <div class="rd-steps-hdr">
+                <span>Face RD Liveness Steps</span>
+                <span id="rdPassCount" class="mono" style="color:#4ade80;">0 / 7 Passed</span>
+              </div>
+              <div class="rd-steps-grid">
+                <div id="stepFace" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>1. Face Detection</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepHead" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>2. Head Movement</span></span><span class="rd-det">0°</span></div>
+                <div id="stepLEye" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>3. Left Eye</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepREye" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>4. Right Eye</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepLips" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>5. Lips Detected</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepBlink" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>6. Blink</span></span><span class="rd-det">0/2</span></div>
+                <div id="stepLipMove" class="rd-step" style="grid-column:span 2;"><span class="rd-step-l"><span class="rd-tick"></span><span>7. Lips Movement</span></span><span class="rd-det">Wait</span></div>
+              </div>
             </div>
-            <div style="padding:10px;display:flex;justify-content:flex-end;">
-              <button id="btnKycCaptureNow" class="btn btn-grad" type="button" style="min-height:38px;">Capture Verified KYC</button>
+            <div style="padding:10px;display:flex;justify-content:flex-end;background:#0f172a;border-top:1px solid #1e293b;">
+              <button id="btnKycCaptureNow" class="btn btn-grad" type="button" disabled style="min-height:40px;">Complete All 7 Steps</button>
             </div>
           </div>
 
           <div id="kycPreviewBox" class="hidden" style="margin-top:8px;display:flex;gap:12px;align-items:flex-start;padding:10px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;">
             <img id="kycPreviewImg" alt="KYC Portrait" style="width:72px;height:72px;object-fit:cover;border-radius:8px;" />
             <div style="flex:1;min-width:0;">
-              <div style="font-size:12px;font-weight:700;color:#15803d;">Face Liveness Verified</div>
+              <div style="font-size:12px;font-weight:700;color:#15803d;">All 7 Face RD Checks Passed</div>
+              <div style="font-size:11px;font-weight:700;color:#15803d;margin-top:2px;">✓ Face · ✓ Head · ✓ Left Eye · ✓ Right Eye · ✓ Lips · ✓ Blink · ✓ Lips Movement</div>
               <div id="kycSummaryText" class="mono" style="font-size:11px;color:#334155;margin-top:4px;word-break:break-word;"></div>
               <button id="btnKycClear" class="btn btn-outline" type="button" style="min-height:32px;font-size:12px;margin-top:6px;">Clear</button>
             </div>
@@ -413,6 +484,8 @@
             <input id="fieldDate" class="input mono" type="text" readonly style="background:#eff6ff;font-weight:700;" />
           </div>
         </div>
+
+        <div id="saveGateNote" class="alert-warn hidden"></div>
 
         <button id="btnSaveRecord" class="btn btn-grad" type="submit" style="width:100%;min-height:50px;font-size:14px;">
           Save Verification to Sheet
@@ -447,6 +520,7 @@
     let formPhotoBase64 = '';
     let kycPhotoBase64 = '';
     let kycSummaryStr = '';
+    let kycAllPassed = false;
 
     let formStream = null;
     let formFacing = 'environment';
@@ -455,6 +529,26 @@
     let landmarker = null;
     let kycRaf = null;
     let lastVideoTime = -1;
+
+    function updateSaveGate() {
+      if (!selectedRow) return;
+      const remarks = $('remarksSelect').value;
+      const existingAlive = String(selectedRow.beneficiaryKycData || '').includes('ALIVE_VERIFIED');
+      const faceRdPassed = kycSummaryStr ? kycAllPassed : existingAlive;
+      const lifeCertReady = Boolean(formPhotoBase64 || selectedRow.lifeCertificateForm);
+      const blocked = remarks === 'Alive' && (!faceRdPassed || !lifeCertReady);
+      $('btnSaveRecord').disabled = blocked;
+      if (blocked) {
+        $('saveGateNote').classList.remove('hidden');
+        $('saveGateNote').textContent = !faceRdPassed
+          ? 'Complete all 7 Face RD steps (Face, Head, Left Eye, Right Eye, Lips, Blink, Lips Movement) until all green ticks pass to enable Save.'
+          : 'Capture or upload the Life Certificate Form photo to enable Save.';
+        $('btnSaveRecord').textContent = 'Complete Face RD & Form to Save';
+      } else {
+        $('saveGateNote').classList.add('hidden');
+        $('btnSaveRecord').textContent = 'Save Verification to Sheet';
+      }
+    }
 
     function formatDDMMYYYY(d = new Date()) {
       return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
@@ -644,6 +738,7 @@
       formPhotoBase64 = '';
       kycPhotoBase64 = '';
       kycSummaryStr = '';
+      kycAllPassed = false;
       $('formPreviewBox').classList.add('hidden');
       $('kycPreviewBox').classList.add('hidden');
       $('formCamFallback').classList.add('hidden');
@@ -702,6 +797,7 @@
       } else {
         $('existingKycBox').classList.add('hidden');
       }
+      updateSaveGate();
     }
 
     $('btnBackToList').onclick = () => {
@@ -749,6 +845,7 @@
       $('formPreviewImg').src = formPhotoBase64;
       $('formPreviewBox').classList.remove('hidden');
       stopFormCam();
+      updateSaveGate();
     };
     $('btnFormUpload').onclick = () => $('formFileInput').click();
     $('btnFormNativeCam').onclick = () => $('formNativeCamInput').click();
@@ -763,6 +860,7 @@
           $('formPreviewImg').src = formPhotoBase64;
           $('formPreviewBox').classList.remove('hidden');
           $('formCamFallback').classList.add('hidden');
+          updateSaveGate();
         };
         img.src = reader.result;
       };
@@ -770,19 +868,60 @@
     };
     $('formFileInput').onchange = handleFile;
     $('formNativeCamInput').onchange = handleFile;
-    $('btnFormClear').onclick = () => { formPhotoBase64 = ''; $('formPreviewBox').classList.add('hidden'); };
+    $('btnFormClear').onclick = () => { formPhotoBase64 = ''; $('formPreviewBox').classList.add('hidden'); updateSaveGate(); };
 
-    // ---- FACE LIVENESS RD KYC MODULE ----
+    // ---- 7-STEP FACE RD AUTHENTICATION MODULE ----
     const LEFT_EYE = [33, 160, 158, 133, 153, 144];
     const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
     let track = {};
 
+    function setStepBadge(elId, passed, detail) {
+      const el = $(elId);
+      if (!el) return;
+      el.classList.toggle('pass', Boolean(passed));
+      const tick = el.querySelector('.rd-tick');
+      if (tick) tick.textContent = passed ? '✓' : '';
+      const det = el.querySelector('.rd-det');
+      if (det) det.textContent = detail;
+    }
+
+    function updateRdChecklist(yawDeg, marVal) {
+      const blinkOk = track.blinks >= 2;
+      setStepBadge('stepFace', track.faceOk, track.faceOk ? 'TICK' : 'Wait');
+      setStepBadge('stepHead', track.headOk, track.headOk ? 'TICK' : Math.round(yawDeg) + '°');
+      setStepBadge('stepLEye', track.lEyeOk, track.lEyeOk ? 'TICK' : 'Wait');
+      setStepBadge('stepREye', track.rEyeOk, track.rEyeOk ? 'TICK' : 'Wait');
+      setStepBadge('stepLips', track.lipsOk, track.lipsOk ? 'TICK' : 'Wait');
+      setStepBadge('stepBlink', blinkOk, blinkOk ? 'TICK (' + track.blinks + '/2)' : track.blinks + '/2');
+      setStepBadge('stepLipMove', track.lipOk, track.lipOk ? 'TICK' : 'MAR ' + marVal.toFixed(2));
+
+      const count = [track.faceOk, track.headOk, track.lEyeOk, track.rEyeOk, track.lipsOk, blinkOk, track.lipOk].filter(Boolean).length;
+      $('rdPassCount').textContent = count + ' / 7 Passed';
+      const allOk = count === 7;
+      $('btnKycCaptureNow').disabled = !allOk;
+      $('btnKycCaptureNow').textContent = allOk ? 'Capture Verified KYC' : 'Complete All 7 Steps';
+      return allOk;
+    }
+
     function resetTrack() {
-      track = { wasClosed: false, blinks: 0, lipOk: false, headOk: false, minMar: 1, maxMar: 0, minYaw: 999, maxYaw: -999, eyesOk: false, earsOk: false, lEar: 0, rEar: 0, autoDone: false };
-      $('tEye').textContent = 'Waiting';
-      $('tBlink').textContent = '0 / 2';
-      $('tLip').textContent = 'Waiting';
-      $('tHead').textContent = '0°';
+      track = {
+        faceOk: false,
+        headOk: false,
+        lEyeOk: false,
+        rEyeOk: false,
+        lipsOk: false,
+        wasClosed: false,
+        blinks: 0,
+        lipOk: false,
+        minMar: 1,
+        maxMar: 0,
+        minYaw: 999,
+        maxYaw: -999,
+        lEar: 0,
+        rEar: 0,
+        autoDone: false
+      };
+      updateRdChecklist(0, 0);
     }
 
     function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
@@ -830,7 +969,9 @@
 
     function captureKycFrame() {
       const video = $('kycVideo');
-      if (!video.videoWidth) return;
+      const allPassed = track.faceOk && track.headOk && track.lEyeOk && track.rEyeOk && track.lipsOk && track.blinks >= 2 && track.lipOk;
+      if (!video.videoWidth || !allPassed) return;
+
       const c = document.createElement('canvas');
       c.width = video.videoWidth;
       c.height = video.videoHeight;
@@ -838,14 +979,19 @@
       if (kycFacing === 'user') { ctx.translate(c.width, 0); ctx.scale(-1, 1); }
       ctx.drawImage(video, 0, 0, c.width, c.height);
       kycPhotoBase64 = c.toDataURL('image/jpeg', 0.82);
-      const yawSpan = track.maxYaw > -900 ? Math.round(track.maxYaw - track.minYaw) : 0;
+      kycAllPassed = true;
+
+      const yawSpan = track.maxYaw > -900 && track.minYaw < 900 ? Math.round(track.maxYaw - track.minYaw) : 0;
       const marDelta = Math.max(0, track.maxMar - track.minMar);
       kycSummaryStr = [
-        'STATUS: ' + (track.eyesOk && track.blinks >= 2 && track.lipOk && track.headOk ? 'ALIVE_VERIFIED' : 'OPERATOR_CAPTURED'),
-        'Eyes: ' + (track.eyesOk ? 'Detected (' + track.lEar.toFixed(2) + '/' + track.rEar.toFixed(2) + ')' : 'Pending'),
-        'Blinks: ' + track.blinks,
-        'Lips: ' + (track.lipOk ? 'Movement Verified (Δ' + marDelta.toFixed(2) + ')' : 'Pending'),
-        'Ears/Head: ' + (track.earsOk ? 'Tracked' : 'Partial') + ' (Yaw ' + yawSpan + '°)',
+        'STATUS: ALIVE_VERIFIED',
+        'Face: TICK',
+        'Head: TICK (Yaw ' + yawSpan + '°)',
+        'Left Eye: TICK (' + track.lEar.toFixed(2) + ')',
+        'Right Eye: TICK (' + track.rEar.toFixed(2) + ')',
+        'Lips: TICK',
+        'Blink: TICK (' + track.blinks + ')',
+        'Lips Movement: TICK (Δ' + marDelta.toFixed(2) + ')',
         'Operator: ' + OPERATOR.userName,
         'Time: ' + formatTS()
       ].join(' | ');
@@ -854,6 +1000,7 @@
       $('kycSummaryText').textContent = kycSummaryStr;
       $('kycPreviewBox').classList.remove('hidden');
       stopKycCam();
+      updateSaveGate();
     }
 
     function loopKyc() {
@@ -872,35 +1019,50 @@
           const blend = res.faceBlendshapes?.[0]?.categories || [];
           const gb = (n) => blend.find(c => c.categoryName === n)?.score || 0;
 
+          // 1. Face Detection
+          track.faceOk = true;
+
+          // 2 & 3 & 4. Left Eye, Right Eye & Blink Detection
           const lEar = ear(lm, LEFT_EYE);
           const rEar = ear(lm, RIGHT_EYE);
           const avgEar = (lEar + rEar) / 2;
           const bScore = (gb('eyeBlinkLeft') + gb('eyeBlinkRight')) / 2;
-          track.eyesOk = lEar > 0.05 && rEar > 0.05;
+          if (lEar > 0.05) track.lEyeOk = true;
+          if (rEar > 0.05) track.rEyeOk = true;
           track.lEar = lEar; track.rEar = rEar;
 
           if ((avgEar < 0.21 || bScore > 0.45) && !track.wasClosed) track.wasClosed = true;
           else if ((avgEar > 0.24 && bScore < 0.28) && track.wasClosed) { track.wasClosed = false; track.blinks++; }
 
+          // 5 & 7. Lips Detected & Lips Movement
           const mar = dist(lm[13], lm[14]) / Math.max(0.001, dist(lm[78], lm[308]));
-          track.minMar = Math.min(track.minMar, mar);
-          track.maxMar = Math.max(track.maxMar, mar);
-          if (track.maxMar - track.minMar > 0.08 || gb('jawOpen') > 0.16 || gb('mouthSmileLeft') > 0.32) track.lipOk = true;
+          if (dist(lm[78], lm[308]) > 0.02) track.lipsOk = true;
+          if (mar > 0) {
+            track.minMar = Math.min(track.minMar, mar);
+            track.maxMar = Math.max(track.maxMar, mar);
+          }
+          const smile = Math.max(gb('mouthSmileLeft'), gb('mouthSmileRight'));
+          if (track.maxMar - track.minMar > 0.07 || gb('jawOpen') > 0.15 || smile > 0.30) track.lipOk = true;
 
+          // 6. Head Movement
           const le = lm[234], re = lm[454], nose = lm[1];
-          track.earsOk = le.x > 0.02 && le.x < 0.98 && re.x > 0.02 && re.x < 0.98;
           const yaw = ((nose.x - (le.x + re.x) / 2) / Math.max(0.01, Math.abs(re.x - le.x))) * 90;
           track.minYaw = Math.min(track.minYaw, yaw);
           track.maxYaw = Math.max(track.maxYaw, yaw);
           if (track.maxYaw - track.minYaw >= 10) track.headOk = true;
 
-          $('tEye').textContent = track.eyesOk ? 'Detected' : 'Searching';
-          $('tBlink').textContent = track.blinks + ' / 2';
-          $('tLip').textContent = track.lipOk ? 'Verified' : 'Move lips';
-          $('tHead').textContent = track.headOk ? 'Verified' : Math.round(yaw) + '°';
-
-          const allOk = track.eyesOk && track.blinks >= 2 && track.lipOk && track.earsOk && track.headOk;
-          $('kycInstruction').textContent = !track.eyesOk ? 'Keep eyes inside oval' : track.blinks < 2 ? 'Blink eyes twice (' + track.blinks + '/2)' : !track.lipOk ? 'Open mouth slightly or smile' : !track.headOk ? 'Turn head slightly left & right' : 'Verified Alive! Capturing...';
+          const allOk = updateRdChecklist(yaw, mar);
+          $('kycInstruction').textContent = (!track.lEyeOk || !track.rEyeOk)
+            ? 'Keep both eyes inside oval'
+            : !track.lipsOk
+              ? 'Show lips clearly inside oval'
+              : track.blinks < 2
+                ? 'Blink eyes twice (' + track.blinks + '/2)'
+                : !track.lipOk
+                  ? 'Open mouth slightly or smile'
+                  : !track.headOk
+                    ? 'Turn head slightly left & right'
+                    : 'All 7 Face RD Steps Passed! Capturing...';
 
           ctx.beginPath();
           ctx.ellipse(canvas.width/2, canvas.height/2, canvas.width*0.28, canvas.height*0.38, 0, 0, Math.PI*2);
@@ -923,15 +1085,32 @@
     $('btnKycFlip').onclick = () => { kycFacing = kycFacing === 'user' ? 'environment' : 'user'; startKycCam(kycFacing); };
     $('btnKycClose').onclick = stopKycCam;
     $('btnKycCaptureNow').onclick = captureKycFrame;
-    $('btnKycClear').onclick = () => { kycPhotoBase64 = ''; kycSummaryStr = ''; $('kycPreviewBox').classList.add('hidden'); };
+    $('btnKycClear').onclick = () => {
+      kycPhotoBase64 = '';
+      kycSummaryStr = '';
+      kycAllPassed = false;
+      $('kycPreviewBox').classList.add('hidden');
+      updateSaveGate();
+    };
+
+    $('remarksSelect').onchange = updateSaveGate;
 
     $('verifyForm').onsubmit = async (e) => {
       e.preventDefault();
       if (!selectedRow) return;
       const remarks = $('remarksSelect').value;
       if (!remarks) { showAlert('Please select Remarks.', true); return; }
-      if (remarks === 'Alive' && !kycSummaryStr && !selectedRow.beneficiaryKycData) {
-        showAlert('For Alive status, complete Face Liveness RD KYC verification.', true);
+
+      const existingAlive = String(selectedRow.beneficiaryKycData || '').includes('ALIVE_VERIFIED');
+      const faceRdPassed = kycSummaryStr ? kycAllPassed : existingAlive;
+      const lifeCertReady = Boolean(formPhotoBase64 || selectedRow.lifeCertificateForm);
+
+      if (remarks === 'Alive' && !faceRdPassed) {
+        showAlert('Cannot save: All 7 Face RD steps (Face, Head, Left Eye, Right Eye, Lips, Blink, Lips Movement) must show green ticks.', true);
+        return;
+      }
+      if (remarks === 'Alive' && !lifeCertReady) {
+        showAlert('For Alive status, capture or upload the Life Certificate Form photo.', true);
         return;
       }
       $('btnSaveRecord').disabled = true;
@@ -965,8 +1144,7 @@
       } catch (err) {
         showAlert(err.message || 'Save failed.', true);
       } finally {
-        $('btnSaveRecord').disabled = false;
-        $('btnSaveRecord').textContent = 'Save Verification to Sheet';
+        updateSaveGate();
       }
     };
 
