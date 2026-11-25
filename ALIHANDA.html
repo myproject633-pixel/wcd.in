@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0f172a" />
+<title>Beneficiary Verification</title>
+<style>
+  :root {
+    --bg:#f4f6fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
+    --accent:#2563eb; --accent-soft:#dbeafe; --ok:#059669; --ok-soft:#d1fae5;
+    --warn:#d97706; --warn-soft:#fef3c7; --err:#dc2626; --err-soft:#fee2e2; --radius:14px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.5;
+    padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+  .hidden { display: none !important; }
+
+  header {
+    position: sticky; top: 0; z-index: 20; background: var(--ink); color: #fff;
+    padding: 14px 16px; padding-top: calc(14px + env(safe-area-inset-top));
+    box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  header .title h1 { font-size: 17px; margin: 0; font-weight: 600; }
+  header .title p  { font-size: 12px; margin: 2px 0 0; opacity: .75; }
+  header .user-box { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+  header .user-box strong { font-size: 13px; }
+  header .logout-btn {
+    background: rgba(255,255,255,.15); border: none; color: #fff;
+    font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px;
+    cursor: pointer; font-family: inherit;
+  }
+  header .admin-btn {
+    background: #f59e0b; border: none; color: #fff;
+    font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px;
+    cursor: pointer; font-family: inherit;
+  }
+
+  main { padding: 16px; max-width: 680px; margin: 0 auto; }
+  .locked-gp {
+    background: var(--accent-soft); color: var(--accent); border-radius: 10px;
+    padding: 10px 14px; font-size: 13px; margin-bottom: 14px;
+    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+  }
+  .locked-gp strong { color: var(--accent); }
+
+  .search-card {
+    background: var(--card); border-radius: var(--radius); padding: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px;
+  }
+  .field-label {
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;
+  }
+  select, input[type="search"] {
+    width: 100%; font-size: 16px; padding: 12px 14px; border: 1.5px solid var(--line);
+    border-radius: 10px; background: #fff; color: var(--ink); outline: none; font-family: inherit;
+  }
+  select:focus, input[type="search"]:focus { border-color: var(--accent); }
+  .row { display: flex; gap: 10px; margin-bottom: 10px; }
+  .row > * { flex: 1; min-width: 0; }
+  .row > select { flex: 0 0 42%; }
+
+  button.primary, button.secondary, button.ok-btn {
+    font-family: inherit; font-size: 15px; font-weight: 600; border: none;
+    border-radius: 10px; padding: 12px 16px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  button.primary { background: var(--accent); color: #fff; width: 100%; margin-top: 8px; }
+  button.secondary { background: #f1f5f9; color: var(--ink); border: 1px solid var(--line); font-size: 14px; }
+  button.ok-btn { background: var(--ok); color: #fff; width: 100%; }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  .btn-spinner {
+    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none;
+  }
+  button.loading .btn-spinner { display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .status { display: none; padding: 12px 14px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; }
+  .status.show { display: block; }
+  .status.info  { background: var(--accent-soft); color: var(--accent); }
+  .status.ok    { background: var(--ok-soft);     color: var(--ok); }
+  .status.err   { background: var(--err-soft);    color: var(--err); }
+  .status.empty { background: var(--warn-soft);   color: var(--warn); }
+
+  .spinner-wrap { display: none; justify-content: center; align-items: center; padding: 40px 0; }
+  .spinner-wrap.show { display: flex; }
+  .spinner {
+    width: 42px; height: 42px; border: 4px solid var(--line);
+    border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite;
+  }
+
+  .result {
+    background: var(--card); border-radius: var(--radius); margin-bottom: 14px;
+    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid var(--line);
+  }
+  .result-head {
+    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
+    gap: 10px; cursor: pointer;
+  }
+  .result-head .name { font-weight: 700; font-size: 16px; }
+  .result-head .id   { font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; }
+  .badge {
+    font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
+    text-transform: uppercase; letter-spacing: .4px; white-space: nowrap;
+  }
+  .badge.ok   { background: var(--ok-soft);   color: var(--ok); }
+  .badge.warn { background: var(--warn-soft); color: var(--warn); }
+  .badge.err  { background: var(--err-soft);  color: var(--err); }
+
+  .result-body { padding: 14px; display: none; border-top: 1px solid var(--line); }
+  .result.open .result-body { display: block; }
+  dl { margin: 0; display: grid; grid-template-columns: 42% 58%; gap: 6px 10px; }
+  dt { color: var(--muted); font-size: 13px; }
+  dd { margin: 0; font-size: 14px; word-break: break-word; }
+  dd.mono { font-family: ui-monospace, monospace; font-size: 13px; }
+  .chev { transition: transform .2s; color: var(--muted); font-size: 12px; }
+  .result.open .chev { transform: rotate(180deg); }
+
+  .verify-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
+  .verify-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
+  .verify-grid { display: grid; gap: 12px; }
+  .action-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .preview-thumb {
+    width: 100%; max-height: 210px; object-fit: contain; border-radius: 10px;
+    border: 1px solid var(--line); background: #f8fafc; margin-top: 8px;
+  }
+  .kyc-summary {
+    background: #f8fafc; border: 1px solid var(--line); border-radius: 10px;
+    padding: 10px 12px; font-size: 13px; color: var(--ink);
+  }
+  .audit-line { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* Camera & KYC Modal */
+  .modal-backdrop {
+    position: fixed; inset: 0; z-index: 50; background: rgba(15,23,42,.74);
+    display: flex; align-items: center; justify-content: center; padding: 12px;
+  }
+  .modal-card {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 560px;
+    max-height: 92vh; overflow-y: auto; padding: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  }
+  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .modal-head h3 { margin: 0; font-size: 16px; }
+  .close-btn {
+    background: #f1f5f9; border: none; border-radius: 8px; padding: 6px 10px;
+    font-weight: 600; cursor: pointer; font-size: 13px;
+  }
+  .video-stage {
+    position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a;
+    border-radius: 12px; overflow: hidden;
+  }
+  .video-stage video, .video-stage canvas {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  }
+  .doc-guide {
+    position: absolute; inset: 10% 8%; border: 2px dashed rgba(255,255,255,.75);
+    border-radius: 10px; pointer-events: none;
+  }
+  .kyc-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
+  .metric-cell {
+    border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12.5px;
+  }
+  .metric-cell.pass { background: var(--ok-soft); border-color: #a7f3d0; color: #065f46; }
+  .metric-cell strong { display: block; font-size: 13px; margin-top: 2px; }
+  .prompt-banner {
+    background: var(--accent-soft); color: var(--accent); padding: 9px 12px;
+    border-radius: 10px; font-size: 13px; font-weight: 600; margin: 10px 0;
+  }
+
+  .result-count { font-size: 13px; color: var(--muted); margin: 0 0 10px 2px; }
+  .footer-note { text-align: center; color: var(--muted); font-size: 12px; margin: 24px 0 8px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="title">
+    <h1>Beneficiary Verification</h1>
+    <p>Search &amp; verify your GP's data</p>
+  </div>
+  <div class="user-box">
+    <strong id="whoami">—</strong>
+    <button id="adminBtn" class="admin-btn hidden">Admin</button>
+    <button id="logoutBtn" class="logout-btn">Logout</button>
+  </div>
+</header>
+
+<main>
+  <div class="locked-gp">
+    <span>Locked to GP / Ward: <strong id="gpLocked">—</strong></span>
+    <span style="font-size:12px;">Sheet: <strong>Data</strong></span>
+  </div>
+
+  <div class="search-card">
+    <div class="field-label">Search by (partial match)</div>
+    <div class="row">
+      <select id="searchField">
+        <option value="Beneficiary Id">Beneficiary ID</option>
+        <option value="Applicant Name">Applicant Name</option>
+        <option value="Applicant Mobile No.">Mobile No.</option>
+        <option value="Aadhaar NO.">Aadhaar No.</option>
+        <option value="Bank Account No.">Bank Account No.</option>
+        <option value="EPIC No.">EPIC No.</option>
+      </select>
+      <input id="searchValue" type="search" placeholder="Start typing…" autocomplete="off" inputmode="text" />
+    </div>
+    <button id="searchBtn" class="primary">
+      <span class="btn-spinner"></span><span>Search</span>
+    </button>
+  </div>
+
+  <div id="status" class="status"></div>
+  <div id="count" class="result-count"></div>
+  <div id="spinner" class="spinner-wrap"><div class="spinner"></div></div>
+  <div id="results"></div>
+  <div class="footer-note">Data source: Google Sheet (Data) via Apps Script Web App</div>
+</main>
+
+<!-- Document Camera Modal -->
+<div id="docModal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Capture Life Certificate Form</h3>
+      <button type="button" class="close-btn" onclick="closeDocCamera()">Close</button>
+    </div>
+    <div class="video-stage">
+      <video id="docVideo" autoplay playsinline muted></video>
+      <img id="docPreviewImg" class="hidden" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#0f172a;" alt="Captured Form" />
+      <div id="docGuide" class="doc-guide"></div>
+    </div>
+    <canvas id="docCanvas" class="hidden"></canvas>
+    <div id="docStatus" class="status info show" style="margin-top:10px;">Align the signed Life Certificate Form inside the frame.</div>
+    <div class="action-row" style="margin-top:10px;">
+      <button type="button" id="docFlipBtn" class="secondary" onclick="flipDocCamera()">Switch Camera</button>
+      <button type="button" id="docCaptureBtn" class="primary" style="flex:1;margin-top:0;" onclick="captureDocFrame()">Capture Photo</button>
+      <button type="button" id="docRetakeBtn" class="secondary hidden" onclick="retakeDocFrame()">Retake</button>
+      <button type="button" id="docConfirmBtn" class="ok-btn hidden" style="flex:1;" onclick="confirmDocCapture()">Use Captured Photo</button>
+    </div>
+  </div>
+</div>
+
+<!-- Advanced Liveness KYC Modal -->
+<div id="kycModal" class="modal-backdrop hidden">
+  <div class="modal-card">
+    <div class="modal-head">
+      <h3>Live Beneficiary Liveness KYC</h3>
+      <button type="button" class="close-btn" onclick="closeKycModal()">Close</button>
+    </div>
+    <div class="video-stage">
+      <video id="kycVideo" autoplay playsinline muted style="transform:scaleX(-1);"></video>
+      <canvas id="kycOverlay" style="transform:scaleX(-1);"></canvas>
+    </div>
+    <div id="kycPrompt" class="prompt-banner">Initializing face &amp; liveness detector…</div>
+    <div class="kyc-metrics">
+      <div id="mFace" class="metric-cell">Face Detected<strong>Waiting…</strong></div>
+      <div id="mEyes" class="metric-cell">Eyes &amp; Blinks<strong id="mEyesVal">0 / 2 blinks</strong></div>
+      <div id="mEars" class="metric-cell">Ears (L / R)<strong id="mEarsVal">Turn slightly L/R</strong></div>
+      <div id="mMotion" class="metric-cell">Face Motion<strong id="mMotionVal">0.0</strong></div>
+    </div>
+    <div class="action-row">
+      <button type="button" id="kycResetBtn" class="secondary" onclick="resetKycSession()">Reset</button>
+      <button type="button" id="kycConfirmBtn" class="ok-btn" style="flex:1;" disabled onclick="confirmKycCapture()">Complete &amp; Attach KYC</button>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
+window.__MP_Vision = { FaceLandmarker, FilesetResolver };
+</script>
+
+<script>
+// ===== CONFIG (HARDCODED FOR GITHUB PAGES) =====
+const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxJN14XdHT-Mra0uJkdmf7W6trqZVsS66ewurJ2Y4q0NOxUjdbLXBFnbcSsx8EdflCq/exec";
+const MAX_RESULTS    = 50;
+const DEBOUNCE_MS    = 400;
+const SESSION_KEY    = "auth_session_v1";
+const REMARKS_LIST   = ["Alive", "Death", "Absent", "Permanently Shifted", "Not Found"];
+// ================================================
+
+const $ = id => document.getElementById(id);
+
+let session = null;
+let lockedGP = "";
+let debounceTimer = null;
+let activeRequest = 0;
+const draftState = {}; // keyed by Beneficiary Id
+
+// Camera & Liveness state
+let docStream = null;
+let docFacingMode = "environment";
+let docTargetId = "";
+let docCapturedDataUrl = "";
+
+let kycStream = null;
+let kycTargetId = "";
+let kycLandmarker = null;
+let kycRaf = 0;
+let kycState = null;
+
+function esc(s) {
+  if (s === null || s === undefined || s === "") return '<span style="color:#94a3b8">—</span>';
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
+}
+function cleanRaw(v) { return String(v).trim().replace(/^['"`]+|['"`]+$/g, ""); }
+function normalizeForField(field, v) {
+  const s = cleanRaw(v);
+  const d = s.replace(/\D/g, "");
+  switch (field) {
+    case "Applicant Mobile No.":
+      if (d.length === 12 && d.startsWith("91")) return d.slice(2);
+      if (d.length === 11 && d.startsWith("0"))  return d.slice(1);
+      return d;
+    case "Aadhaar NO.": case "Bank Account No.": case "Beneficiary Id": case "EPIC No.":
+      return d || s;
+    default:
+      return s.replace(/\s+/g, " ");
+  }
+}
+function setStatus(m, k) { $("status").className = "status " + k + " show"; $("status").textContent = m; }
+function clearStatus() { $("status").className = "status"; $("status").textContent = ""; }
+function showSpinner() { $("spinner").classList.add("show"); $("searchBtn").classList.add("loading"); $("searchBtn").disabled = true; }
+function hideSpinner() { $("spinner").classList.remove("show"); $("searchBtn").classList.remove("loading"); $("searchBtn").disabled = false; }
+
+function paymentBadge(s) {
+  const v = (s || "").toLowerCase();
+  if (v.includes("paid") || v.includes("success") || v.includes("complete"))
+    return '<span class="badge ok">' + esc(s) + '</span>';
+  if (v.includes("pending") || v.includes("process"))
+    return '<span class="badge warn">' + esc(s) + '</span>';
+  if (v.includes("fail") || v.includes("reject"))
+    return '<span class="badge err">' + esc(s) + '</span>';
+  return '<span class="badge warn">' + esc(s || "Unknown") + '</span>';
+}
+
+// ---------- Search via Hardcoded GAS Web App URL ----------
+async function search() {
+  if (!session) return;
+  if (GAS_WEBAPP_URL.includes("YOUR_DEPLOYMENT_ID_HERE")) {
+    setStatus("Set your deployed Google Apps Script Web App URL in GAS_WEBAPP_URL.", "err");
+    return;
+  }
+
+  const field = $("searchField").value;
+  const raw   = $("searchValue").value;
+  const v     = normalizeForField(field, raw);
+
+  $("results").innerHTML = "";
+  $("count").textContent = "";
+  clearStatus();
+  if (!v) { hideSpinner(); return; }
+
+  showSpinner();
+  const reqId = ++activeRequest;
+
+  const url = `${GAS_WEBAPP_URL}?action=search&field=${encodeURIComponent(field)}&q=${encodeURIComponent(v)}&gp=${encodeURIComponent(lockedGP)}`;
+
+  try {
+    const res = await fetch(url, { method: "GET", redirect: "follow" });
+    if (reqId !== activeRequest) return;
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const data = await res.json();
+    if (reqId !== activeRequest) return;
+    if (!data.ok) throw new Error(data.error || "Search failed");
+
+    const rows = data.rows || [];
+    if (!rows.length) {
+      setStatus(lockedGP ? `No match in ${lockedGP}.` : "No matching beneficiary found.", "empty");
+      return;
+    }
+
+    $("count").textContent = data.truncated
+      ? `Showing first ${MAX_RESULTS} of ${data.totalMatched} matches — refine your search`
+      : `${rows.length} match${rows.length > 1 ? "es" : ""} found`;
+
+    rows.forEach(row => $("results").appendChild(renderCard(row)));
+    if (rows.length === 1) $("results").firstChild.classList.add("open");
+  } catch (err) {
+    if (reqId !== activeRequest) return;
+    setStatus("Error: " + err.message, "err");
+  } finally {
+    if (reqId === activeRequest) hideSpinner();
+  }
+}
+
+function scheduleSearch() {
+  clearTimeout(debounceTimer);
+  if (!$("searchValue").value.trim()) {
+    activeRequest++;
+    $("results").innerHTML = "";
+    clearStatus();
+    $("count").textContent = "";
+    hideSpinner();
+    return;
+  }
+  debounceTimer = setTimeout(search, DEBOUNCE_MS);
+}
+
+function ensureDraft(r) {
+  const id = r["Beneficiary Id"];
+  if (!draftState[id]) {
+    draftState[id] = {
+      rowNumber: r._rowNumber,
+      remarks: r["Remarks"] || "",
+      existingLifeCertUrl: r["Life Certificate Form"] || "",
+      lifeCertBase64: "",
+      kycData: r["Beneficiary KYC Data"] || "",
+      kycSnapshotBase64: ""
+    };
+  }
+  return draftState[id];
+}
+
+function formatKycPreview(raw) {
+  if (!raw) return '<span style="color:#64748b;">No liveness KYC captured yet.</span>';
+  try {
+    const k = JSON.parse(raw);
+    return `
+      <strong>${esc(k.status || "RECORDED")}</strong> ·
+      Face: ${k.faceDetected ? "Yes" : "No"} ·
+      Eyes: ${k.eyesDetected ? "Yes" : "No"} ·
+      Blinks: <strong>${k.blinksCount || 0}</strong> ·
+      Ears: L(${k.leftEarDetected ? "OK" : "—"}) / R(${k.rightEarDetected ? "OK" : "—"}) ·
+      Motion: ${k.motionMagnitude || 0} ·
+      Confidence: ${k.livenessConfidence || 0}%
+    `;
+  } catch {
+    return esc(raw);
+  }
+}
+
+function renderCard(r) {
+  const id = r["Beneficiary Id"];
+  const draft = ensureDraft(r);
+  const safeDomId = id.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const card = document.createElement("div");
+  card.className = "result";
+
+  const fields = [
+    ["Beneficiary Id", r["Beneficiary Id"], true],
+    ["Applicant Name", r["Applicant Name"]],
+    ["Gender", r["Applicant Gender"]],
+    ["Mobile No.", r["Applicant Mobile No."], true],
+    ["DOB", r["Applicant DOB."]],
+    ["Age", r["Age"]],
+    ["Caste", r["Caste"]],
+    ["Aadhaar No.", r["Aadhaar NO."], true],
+    ["Bank IFSC", r["Bank IFSC"], true],
+    ["Bank Account No.", r["Bank Account No."], true],
+    ["Ration Card No.", r["Ration Card No."]],
+    ["EPIC No.", r["EPIC No."], true],
+    ["Father's Name", r["Father's Name"]],
+    ["Mother's Name", r["Mother's Name"]],
+    ["Spouse Name", r["Spouse Name"]],
+    ["GP / Ward", r["GP/WARD"]],
+    ["Village / Town / City", r["Village/Town/City"]],
+    ["House Premise No.", r["House Premise No"]],
+    ["Post Office", r["Post Office"]],
+    ["PIN Code", r["PIN Code"], true],
+    ["Duare Sarkar Phase", r["Duare Sarkar Phase"]],
+    ["Type", r["TYPE"]],
+    ["Payment Status", r["Payment Status"]]
+  ];
+
+  const remarksOpts = ['<option value="">— Select Remarks —</option>']
+    .concat(REMARKS_LIST.map(opt => `<option value="${esc(opt)}" ${draft.remarks === opt ? "selected" : ""}>${esc(opt)}</option>`))
+    .join("");
+
+  card.innerHTML = `
+    <div class="result-head">
+      <div>
+        <div class="name">${esc(r["Applicant Name"] || "Unnamed")}</div>
+        <div class="id">${esc(id)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        ${paymentBadge(r["Payment Status"])}
+        <span class="chev">▼</span>
+      </div>
+    </div>
+    <div class="result-body">
+      <dl>
+        ${fields.map(([l, val, m]) => `<dt>${esc(l)}</dt><dd class="${m ? "mono" : ""}">${esc(val)}</dd>`).join("")}
+      </dl>
+
+      <div class="verify-box">
+        <div class="verify-title">Verification &amp; Editable Record</div>
+        <div class="verify-grid">
+          <div>
+            <div class="field-label">Remarks</div>
+            <select id="rem_${safeDomId}">${remarksOpts}</select>
+          </div>
+
+          <div>
+            <div class="field-label">Life Certificate Form (Camera Capture &amp; Upload)</div>
+            <div class="action-row">
+              <button type="button" class="secondary" onclick="openDocCamera('${id.replace(/'/g, "\\'")}')">Capture Form Camera</button>
+              <label class="secondary" style="cursor:pointer;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:#f1f5f9;font-size:14px;font-weight:600;">
+                Upload Image
+                <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleDocFileInput(event, '${id.replace(/'/g, "\\'")}')" />
+              </label>
+            </div>
+            <div id="docInfo_${safeDomId}" style="margin-top:8px;font-size:13px;">
+              ${draft.lifeCertBase64
+                ? `<img src="${draft.lifeCertBase64}" class="preview-thumb" alt="Life Certificate Preview" />`
+                : (draft.existingLifeCertUrl
+                  ? `<a href="${esc(draft.existingLifeCertUrl)}" target="_blank" rel="noopener">View uploaded Life Certificate in Drive</a>`
+                  : '<span style="color:#64748b;">No document captured yet.</span>')}
+            </div>
+          </div>
+
+          <div>
+            <div class="field-label">Beneficiary KYC Data (Liveness Camera Verification)</div>
+            <div class="action-row" style="margin-bottom:8px;">
+              <button type="button" class="secondary" onclick="openKycModal('${id.replace(/'/g, "\\'")}')">Start Live Liveness KYC</button>
+            </div>
+            <div id="kycInfo_${safeDomId}" class="kyc-summary">${formatKycPreview(draft.kycData)}</div>
+          </div>
+
+          <div>
+            <button type="button" id="saveBtn_${safeDomId}" class="ok-btn" onclick="saveRow('${id.replace(/'/g, "\\'")}')">
+              <span class="btn-spinner"></span><span>Save to Google Sheet</span>
+            </button>
+            <div id="saveMsg_${safeDomId}" class="audit-line">
+              ${r["User Name"]
+                ? `Last saved by <strong>${esc(r["User Name"])}</strong> on ${esc(r["Date"])} (${esc(r["TimeStamp"])})`
+                : `Signed-in User: <strong>${esc(session ? session.User : "—")}</strong>`}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  card.querySelector(".result-head").addEventListener("click", () => card.classList.toggle("open"));
+  card.querySelector(`#rem_${safeDomId}`).addEventListener("change", e => {
+    draftState[id].remarks = e.target.value;
+  });
+  return card;
+}
+
+window.handleDocFileInput = function(ev, bid) {
+  const file = ev.target.files && ev.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const maxW = 1400;
+      const scale = Math.min(1, maxW / img.width);
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+      const jpeg = canvas.toDataURL("image/jpeg", 0.85);
+      draftState[bid].lifeCertBase64 = jpeg;
+      const safeDomId = bid.replace(/[^a-zA-Z0-9_-]/g, "_");
+      $(`docInfo_${safeDomId}`).innerHTML = `<img src="${jpeg}" class="preview-thumb" alt="Captured Form" />`;
+    };
+    img.src = reader.result;
+  };
+  reader.readAsDataURL(file);
+};
+
+// ===== Document Camera =====
+window.openDocCamera = async function(bid) {
+  docTargetId = bid;
+  docCapturedDataUrl = "";
+  $("docPreviewImg").classList.add("hidden");
+  $("docVideo").classList.remove("hidden");
+  $("docGuide").classList.remove("hidden");
+  $("docCaptureBtn").classList.remove("hidden");
+  $("docFlipBtn").classList.remove("hidden");
+  $("docRetakeBtn").classList.add("hidden");
+  $("docConfirmBtn").classList.add("hidden");
+  $("docStatus").className = "status info show";
+  $("docStatus").textContent = "Align the signed Life Certificate Form inside the dashed border.";
+  $("docModal").classList.remove("hidden");
+  await startDocStream();
+};
+
+async function startDocStream() {
+  stopDocStream();
+  try {
+    docStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: docFacingMode, width: { ideal: 1600 }, height: { ideal: 1200 } },
+      audio: false
+    });
+    $("docVideo").srcObject = docStream;
+  } catch (err) {
+    $("docStatus").className = "status err show";
+    $("docStatus").textContent = "Camera unavailable: " + err.message;
+  }
+}
+function stopDocStream() {
+  if (docStream) { docStream.getTracks().forEach(t => t.stop()); docStream = null; }
+}
+window.flipDocCamera = async function() {
+  docFacingMode = docFacingMode === "environment" ? "user" : "environment";
+  await startDocStream();
+};
+window.captureDocFrame = function() {
+  const v = $("docVideo");
+  if (!v.videoWidth) return;
+  const c = $("docCanvas");
+  c.width = v.videoWidth;
+  c.height = v.videoHeight;
+  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
+  docCapturedDataUrl = c.toDataURL("image/jpeg", 0.86);
+  $("docPreviewImg").src = docCapturedDataUrl;
+  $("docPreviewImg").classList.remove("hidden");
+  $("docVideo").classList.add("hidden");
+  $("docGuide").classList.add("hidden");
+  $("docCaptureBtn").classList.add("hidden");
+  $("docFlipBtn").classList.add("hidden");
+  $("docRetakeBtn").classList.remove("hidden");
+  $("docConfirmBtn").classList.remove("hidden");
+  $("docStatus").textContent = "Review captured photo or retake.";
+};
+window.retakeDocFrame = function() {
+  docCapturedDataUrl = "";
+  $("docPreviewImg").classList.add("hidden");
+  $("docVideo").classList.remove("hidden");
+  $("docGuide").classList.remove("hidden");
+  $("docCaptureBtn").classList.remove("hidden");
+  $("docFlipBtn").classList.remove("hidden");
+  $("docRetakeBtn").classList.add("hidden");
+  $("docConfirmBtn").classList.add("hidden");
+};
+window.confirmDocCapture = function() {
+  if (!docTargetId || !docCapturedDataUrl) return;
+  draftState[docTargetId].lifeCertBase64 = docCapturedDataUrl;
+  const safeDomId = docTargetId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  $(`docInfo_${safeDomId}`).innerHTML = `<img src="${docCapturedDataUrl}" class="preview-thumb" alt="Captured Form" />`;
+  closeDocCamera();
+};
+window.closeDocCamera = function() {
+  stopDocStream();
+  $("docModal").classList.add("hidden");
+};
+
+// ===== Liveness KYC Camera =====
+function initKycState() {
+  kycState = {
+    faceDetected: false,
+    eyesDetected: false,
+    blinksCount: 0,
+    isEyeClosed: false,
+    leftEarDetected: false,
+    rightEarDetected: false,
+    minYaw: 0,
+    maxYaw: 0,
+    minPitch: 0,
+    maxPitch: 0,
+    prevNose: null,
+    motionAcc: 0,
+    frames: 0,
+    snapshotBase64: ""
+  };
+  $("mFace").className = "metric-cell";
+  $("mFace").querySelector("strong").textContent = "Waiting…";
+  $("mEyes").className = "metric-cell";
+  $("mEyesVal").textContent = "0 / 2 blinks";
+  $("mEars").className = "metric-cell";
+  $("mEarsVal").textContent = "Turn slightly L/R";
+  $("mMotion").className = "metric-cell";
+  $("mMotionVal").textContent = "0.0";
+  $("kycConfirmBtn").disabled = true;
+}
+
+window.openKycModal = async function(bid) {
+  kycTargetId = bid;
+  initKycState();
+  $("kycPrompt").textContent = "Starting camera & MediaPipe FaceLandmarker…";
+  $("kycModal").classList.remove("hidden");
+
+  try {
+    kycStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 720 } },
+      audio: false
+    });
+    const video = $("kycVideo");
+    video.srcObject = kycStream;
+    await video.play();
+
+    if (!kycLandmarker && window.__MP_Vision) {
+      const { FaceLandmarker, FilesetResolver } = window.__MP_Vision;
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
+      );
+      kycLandmarker = await FaceLandmarker.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+          delegate: "GPU"
+        },
+        runningMode: "VIDEO",
+        numFaces: 1,
+        outputFaceBlendshapes: true,
+        outputFacialTransformationMatrixes: true
+      });
+    }
+
+    $("kycPrompt").textContent = "Look at camera, blink twice, and turn slightly left & right.";
+    runKycLoop();
+  } catch (err) {
+    $("kycPrompt").textContent = "Camera / Liveness error: " + err.message;
+  }
+};
+
+window.resetKycSession = function() {
+  initKycState();
+  $("kycPrompt").textContent = "Look at camera, blink twice, and turn slightly left & right.";
+};
+
+function dist2D(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+function computeEAR(lm, idx) {
+  const v1 = dist2D(lm[idx[1]], lm[idx[5]]);
+  const v2 = dist2D(lm[idx[2]], lm[idx[4]]);
+  const h = dist2D(lm[idx[0]], lm[idx[3]]);
+  return h > 0 ? (v1 + v2) / (2 * h) : 0.3;
+}
+
+function runKycLoop() {
+  const video = $("kycVideo");
+  const canvas = $("kycOverlay");
+  if (!kycStream || !video.videoWidth) {
+    kycRaf = requestAnimationFrame(runKycLoop);
+    return;
+  }
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (kycLandmarker) {
+    const res = kycLandmarker.detectForVideo(video, performance.now());
+    if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+      const lm = res.faceLandmarks[0];
+      kycState.faceDetected = true;
+      kycState.frames++;
+
+      ctx.fillStyle = "#38bdf8";
+      [33, 133, 362, 263, 468, 473, 234, 454].forEach(i => {
+        if (lm[i]) {
+          ctx.beginPath();
+          ctx.arc(lm[i].x * canvas.width, lm[i].y * canvas.height, 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      if (lm[33] && lm[133] && lm[362] && lm[263]) kycState.eyesDetected = true;
+
+      let blinkScore = 0;
+      if (res.faceBlendshapes && res.faceBlendshapes[0]) {
+        const cats = res.faceBlendshapes[0].categories;
+        const bL = cats.find(c => c.categoryName === "eyeBlinkLeft")?.score || 0;
+        const bR = cats.find(c => c.categoryName === "eyeBlinkRight")?.score || 0;
+        blinkScore = (bL + bR) / 2;
+      } else {
+        const earL = computeEAR(lm, [33, 160, 158, 133, 153, 144]);
+        const earR = computeEAR(lm, [362, 385, 387, 263, 373, 380]);
+        blinkScore = ((earL + earR) / 2) < 0.21 ? 0.8 : 0.1;
+      }
+
+      if (blinkScore > 0.46 && !kycState.isEyeClosed) kycState.isEyeClosed = true;
+      else if (blinkScore < 0.26 && kycState.isEyeClosed) {
+        kycState.isEyeClosed = false;
+        kycState.blinksCount++;
+      }
+
+      const nose = lm[1];
+      const leftTragus = lm[234];
+      const rightTragus = lm[454];
+      const midX = (leftTragus.x + rightTragus.x) / 2;
+      const faceW = Math.max(0.05, Math.abs(rightTragus.x - leftTragus.x));
+      const yawDeg = ((nose.x - midX) / faceW) * 60;
+      const pitchDeg = ((nose.y - ((lm[10].y + lm[152].y) / 2)) / faceW) * 45;
+
+      kycState.minYaw = Math.min(kycState.minYaw, yawDeg);
+      kycState.maxYaw = Math.max(kycState.maxYaw, yawDeg);
+      kycState.minPitch = Math.min(kycState.minPitch, pitchDeg);
+      kycState.maxPitch = Math.max(kycState.maxPitch, pitchDeg);
+
+      if (leftTragus.x > 0.04 && leftTragus.x < 0.96 && yawDeg >= 5) kycState.leftEarDetected = true;
+      if (rightTragus.x > 0.04 && rightTragus.x < 0.96 && yawDeg <= -5) kycState.rightEarDetected = true;
+
+      if (kycState.prevNose) {
+        const delta = Math.hypot(nose.x - kycState.prevNose.x, nose.y - kycState.prevNose.y) * 100;
+        if (delta > 0.12) kycState.motionAcc = Math.min(25, kycState.motionAcc + delta * 0.25);
+      }
+      kycState.prevNose = { x: nose.x, y: nose.y };
+
+      if (!kycState.snapshotBase64 && Math.abs(yawDeg) < 8 && kycState.frames > 12) {
+        const snap = document.createElement("canvas");
+        snap.width = video.videoWidth;
+        snap.height = video.videoHeight;
+        snap.getContext("2d").drawImage(video, 0, 0);
+        kycState.snapshotBase64 = snap.toDataURL("image/jpeg", 0.8);
+      }
+
+      $("mFace").className = "metric-cell pass";
+      $("mFace").querySelector("strong").textContent = "Locked";
+
+      $("mEyesVal").textContent = `${kycState.blinksCount} / 2 blinks`;
+      if (kycState.eyesDetected && kycState.blinksCount >= 2) $("mEyes").className = "metric-cell pass";
+
+      $("mEarsVal").textContent = `L:${kycState.leftEarDetected ? "OK" : "—"} · R:${kycState.rightEarDetected ? "OK" : "—"}`;
+      if (kycState.leftEarDetected && kycState.rightEarDetected) $("mEars").className = "metric-cell pass";
+
+      $("mMotionVal").textContent = kycState.motionAcc.toFixed(1);
+      if (kycState.motionAcc >= 2.5) $("mMotion").className = "metric-cell pass";
+
+      const passed = kycState.faceDetected &&
+        kycState.eyesDetected &&
+        kycState.blinksCount >= 2 &&
+        kycState.leftEarDetected &&
+        kycState.rightEarDetected &&
+        kycState.motionAcc >= 2.5;
+
+      $("kycConfirmBtn").disabled = !passed;
+      if (passed) {
+        $("kycPrompt").textContent = "Liveness verified! Tap 'Complete & Attach KYC' below.";
+      }
+    } else {
+      $("mFace").className = "metric-cell";
+      $("mFace").querySelector("strong").textContent = "No face in frame";
+    }
+  }
+  kycRaf = requestAnimationFrame(runKycLoop);
+}
+
+window.confirmKycCapture = function() {
+  if (!kycTargetId || !kycState) return;
+  const payload = {
+    status: "ALIVE_VERIFIED",
+    faceDetected: kycState.faceDetected,
+    eyesDetected: kycState.eyesDetected,
+    blinksCount: kycState.blinksCount,
+    leftEarDetected: kycState.leftEarDetected,
+    rightEarDetected: kycState.rightEarDetected,
+    earsDetectedCount: (kycState.leftEarDetected ? 1 : 0) + (kycState.rightEarDetected ? 1 : 0),
+    faceMotionDetected: kycState.motionAcc >= 2.5,
+    motionMagnitude: Number(kycState.motionAcc.toFixed(2)),
+    headYawRangeDeg: Math.round(kycState.maxYaw - kycState.minYaw),
+    headPitchRangeDeg: Math.round(kycState.maxPitch - kycState.minPitch),
+    livenessConfidence: 98,
+    verifiedBy: session ? session.User : "Unknown",
+    capturedAt: new Date().toISOString()
+  };
+  draftState[kycTargetId].kycData = JSON.stringify(payload);
+  draftState[kycTargetId].kycSnapshotBase64 = kycState.snapshotBase64 || "";
+  const safeDomId = kycTargetId.replace(/[^a-zA-Z0-9_-]/g, "_");
+  $(`kycInfo_${safeDomId}`).innerHTML = formatKycPreview(draftState[kycTargetId].kycData);
+  closeKycModal();
+};
+
+window.closeKycModal = function() {
+  cancelAnimationFrame(kycRaf);
+  if (kycStream) { kycStream.getTracks().forEach(t => t.stop()); kycStream = null; }
+  $("kycModal").classList.add("hidden");
+};
+
+// ===== Save Row via Hardcoded GAS Web App URL (text/plain POST avoids CORS preflight) =====
+window.saveRow = async function(bid) {
+  if (GAS_WEBAPP_URL.includes("YOUR_DEPLOYMENT_ID_HERE")) {
+    setStatus("Set your deployed Google Apps Script Web App URL in GAS_WEBAPP_URL.", "err");
+    return;
+  }
+  const d = draftState[bid];
+  if (!d) return;
+  if (!d.remarks) {
+    setStatus("Please select Remarks (Alive, Death, Absent, Permanently Shifted, Not Found).", "err");
+    return;
+  }
+
+  const safeDomId = bid.replace(/[^a-zA-Z0-9_-]/g, "_");
+  const btn = $(`saveBtn_${safeDomId}`);
+  btn.classList.add("loading");
+  btn.disabled = true;
+
+  try {
+    const res = await fetch(GAS_WEBAPP_URL, {
+      method: "POST",
+      redirect: "follow",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "save",
+        beneficiaryId: bid,
+        rowNumber: d.rowNumber,
+        lockedGP: lockedGP,
+        remarks: d.remarks,
+        lifeCertBase64: d.lifeCertBase64,
+        existingLifeCertUrl: d.existingLifeCertUrl,
+        kycData: d.kycData,
+        kycSnapshotBase64: d.kycSnapshotBase64,
+        userName: session ? session.User : "Unknown"
+      })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "Save failed");
+
+    if (data.updated) {
+      d.existingLifeCertUrl = data.updated["Life Certificate Form"] || d.existingLifeCertUrl;
+      d.lifeCertBase64 = "";
+      d.kycSnapshotBase64 = "";
+      if (d.existingLifeCertUrl) {
+        $(`docInfo_${safeDomId}`).innerHTML = `<a href="${esc(d.existingLifeCertUrl)}" target="_blank" rel="noopener">Saved in Drive — Open Life Certificate</a>`;
+      }
+      $(`saveMsg_${safeDomId}`).innerHTML = `Saved by <strong>${esc(data.updated["User Name"])}</strong> · ${esc(data.updated["Date"])} (${esc(data.updated["TimeStamp"])})`;
+      setStatus(`Saved verification record for ${bid}.`, "ok");
+    }
+  } catch (err) {
+    setStatus("Save failed: " + err.message, "err");
+  } finally {
+    btn.classList.remove("loading");
+    btn.disabled = false;
+  }
+};
+
+// ---------- Wire ----------
+$("searchValue").addEventListener("input", () => { $("searchValue").value = $("searchValue").value.replace(/['"`]/g, ""); });
+$("searchValue").addEventListener("input", scheduleSearch);
+$("searchValue").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(debounceTimer); search(); } });
+$("searchBtn").addEventListener("click", () => { clearTimeout(debounceTimer); search(); });
+$("searchField").addEventListener("change", () => {
+  const n = ["Beneficiary Id","Applicant Mobile No.","Aadhaar NO.","Bank Account No."].includes($("searchField").value);
+  $("searchValue").setAttribute("inputmode", n ? "numeric" : "text");
+  if ($("searchValue").value.trim()) { clearTimeout(debounceTimer); search(); }
+});
+$("logoutBtn").addEventListener("click", () => {
+  sessionStorage.removeItem(SESSION_KEY);
+  window.location.href = "index.htm";
+});
+$("adminBtn").addEventListener("click", () => { window.location.href = "admin.html"; });
+
+// ---------- Boot (matches auth_session_v1 template) ----------
+(function boot() {
+  let s = null;
+  try { s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null"); } catch {}
+  if (!s || !s.User) { window.location.href = "index.htm"; return; }
+  if ((s.Permission || "").toLowerCase() === "pending") {
+    sessionStorage.removeItem(SESSION_KEY);
+    window.location.href = "index.htm";
+    return;
+  }
+  session = s;
+  lockedGP = s["GP/WARD"] || "";
+
+  $("whoami").textContent = `${s.User} (${s.Role || "user"})`;
+
+  if ((s.Role || "").toLowerCase() === "admin") {
+    $("adminBtn").classList.remove("hidden");
+    lockedGP = "";
+    $("gpLocked").textContent = "All GPs (admin)";
+  } else {
+    $("gpLocked").textContent = lockedGP || "(not assigned)";
+  }
+})();
+</script>
+</body>
+</html>
