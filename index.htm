@@ -266,6 +266,28 @@
     .btn-primary:active { transform: scale(0.985); }
     .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
 
+    .btn-warning {
+      width: 100%;
+      min-height: 46px;
+      border: 1px solid #f59e0b;
+      border-radius: 12px;
+      background: #fffbeb;
+      color: #b45309;
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      transition: background 150ms ease, transform 120ms ease;
+    }
+    .btn-warning:hover { background: #fef3c7; }
+    .btn-warning:active { transform: scale(0.985); }
+    .btn-warning:disabled { opacity: 0.65; cursor: not-allowed; }
+
     .btn-outline {
       min-height: 42px;
       padding: 0 14px;
@@ -306,6 +328,7 @@
       font-size: 0.875rem;
       margin-bottom: 14px;
       line-height: 1.45;
+      font-weight: 500;
     }
     .alert-error { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
     .alert-success { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
@@ -513,6 +536,14 @@
   </header>
 
   <main class="main-wrap">
+    <!-- RESTORING SESSION VIEW -->
+    <section id="restoringView" class="auth-shell hidden">
+      <div class="card" style="text-align:center;padding:34px 20px;">
+        <p style="font-weight:700;font-size:1rem;color:#1d4ed8;">Restoring your active session...</p>
+        <p style="font-size:0.85rem;color:#64748b;margin-top:6px;">Please wait a moment.</p>
+      </div>
+    </section>
+
     <!-- AUTH VIEW -->
     <section id="authView" class="auth-shell">
       <div class="card">
@@ -522,6 +553,13 @@
         </div>
 
         <div id="authMessage" class="alert hidden"></div>
+
+        <!-- Logout from other devices action (shown only when ALREADY_SIGNED_IN) -->
+        <div id="forceLogoutBox" class="hidden">
+          <button id="btnForceLogoutSignin" class="btn-warning" type="button">
+            Logout from other devices &amp; Sign In
+          </button>
+        </div>
 
         <!-- Sign In Form -->
         <form id="signinForm">
@@ -565,14 +603,14 @@
             <input id="signupPassword" class="input" type="password" minlength="4" placeholder="Create password (min 4 chars)" required />
           </div>
           <p style="font-size:0.8rem;color:#475569;margin-bottom:14px;">
-            New registrations are created with <strong>User</strong> role by default.
+            New registrations are created with <strong>User</strong> role and require GP Admin approval.
           </p>
           <button id="signupBtn" class="btn-primary" type="submit">Create Account</button>
         </form>
       </div>
     </section>
 
-    <!-- COMMON EMBEDDED PORTAL VIEW (Used by User auto-load AND Admin portal/GP preview) -->
+    <!-- COMMON EMBEDDED PORTAL VIEW -->
     <section id="portalFrameSection" class="hidden">
       <div class="frame-bar">
         <div>
@@ -630,14 +668,14 @@
           <input id="adminSearchInput" class="input" type="search" placeholder="Search name or mobile no..." />
           <select id="adminGpFilter" class="select">
             <option value="">All Gram Panchayats</option>
-              <option value="ALIHANDA">ALIHANDA</option>
-              <option value="BHAGABANPUR">BHAGABANPUR</option>
-              <option value="CHANCHAL">CHANCHAL</option>
-              <option value="KALIGRAM">KALIGRAM</option>
-              <option value="KHARBA">KHARBA</option>
-              <option value="MAHANANDAPUR">MAHANANDAPUR</option>
-              <option value="MAKDAMPUR">MAKDAMPUR</option>
-              <option value="MOTIHARPUR">MOTIHARPUR</option>
+            <option value="ALIHANDA">ALIHANDA</option>
+            <option value="BHAGABANPUR">BHAGABANPUR</option>
+            <option value="CHANCHAL">CHANCHAL</option>
+            <option value="KALIGRAM">KALIGRAM</option>
+            <option value="KHARBA">KHARBA</option>
+            <option value="MAHANANDAPUR">MAHANANDAPUR</option>
+            <option value="MAKDAMPUR">MAKDAMPUR</option>
+            <option value="MOTIHARPUR">MOTIHARPUR</option>
           </select>
           <button id="btnRefreshUsers" class="btn-outline" type="button">Refresh</button>
         </div>
@@ -664,14 +702,14 @@
           <label for="addGp">Gram Panchayat</label>
           <select id="addGp" class="select" required>
             <option value="">Select Gram Panchayat</option>
-              <option value="ALIHANDA">ALIHANDA</option>
-              <option value="BHAGABANPUR">BHAGABANPUR</option>
-              <option value="CHANCHAL">CHANCHAL</option>
-              <option value="KALIGRAM">KALIGRAM</option>
-              <option value="KHARBA">KHARBA</option>
-              <option value="MAHANANDAPUR">MAHANANDAPUR</option>
-              <option value="MAKDAMPUR">MAKDAMPUR</option>
-              <option value="MOTIHARPUR">MOTIHARPUR</option>
+            <option value="ALIHANDA">ALIHANDA</option>
+            <option value="BHAGABANPUR">BHAGABANPUR</option>
+            <option value="CHANCHAL">CHANCHAL</option>
+            <option value="KALIGRAM">KALIGRAM</option>
+            <option value="KHARBA">KHARBA</option>
+            <option value="MAHANANDAPUR">MAHANANDAPUR</option>
+            <option value="MAKDAMPUR">MAKDAMPUR</option>
+            <option value="MOTIHARPUR">MOTIHARPUR</option>
           </select>
         </div>
         <div class="field">
@@ -710,6 +748,7 @@
   <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyHVrn05yebeMyVTwwmtY7Zy1S1kfoamfpz2zK39cqheNHsvoV4iP3yGVNgJU1vWM9t/exec";
     const GRAM_PANCHAYATS = ["ALIHANDA","BHAGABANPUR","CHANCHAL","KALIGRAM","KHARBA","MAHANANDAPUR","MAKDAMPUR","MOTIHARPUR"];
+    const TOKEN_STORAGE_KEY = 'wcd_plc_auth_token';
 
     let currentToken = '';
     let currentUser = null;
@@ -719,6 +758,26 @@
     let heartbeatTimer = null;
 
     const $ = (id) => document.getElementById(id);
+
+    function saveToken(token) {
+      try {
+        if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      } catch (e) {}
+    }
+
+    function loadSavedToken() {
+      try {
+        return localStorage.getItem(TOKEN_STORAGE_KEY) || '';
+      } catch (e) {
+        return '';
+      }
+    }
+
+    function clearSavedToken() {
+      try {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+      } catch (e) {}
+    }
 
     function setLiveCountUI(count) {
       if (typeof count === 'number' && !Number.isNaN(count)) {
@@ -738,14 +797,42 @@
       } catch (e) {}
     }
 
+    function handleForcedLocalLogout(reasonMsg) {
+      if (heartbeatTimer) {
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      }
+      clearSavedToken();
+      currentToken = '';
+      currentUser = null;
+      allUsers = [];
+      activeFrameUrl = '';
+      $('portalFrame').src = 'about:blank';
+      $('portalFrameSection').classList.add('hidden');
+      $('adminView').classList.add('hidden');
+      $('restoringView').classList.add('hidden');
+      $('btnSignOutHeader').classList.add('hidden');
+      $('authView').classList.remove('hidden');
+      switchAuthTab('signin', false);
+      if (reasonMsg) {
+        showAuthMsg(reasonMsg, true);
+      }
+      refreshLiveCount();
+    }
+
     function startHeartbeat() {
       if (heartbeatTimer) clearInterval(heartbeatTimer);
       heartbeatTimer = setInterval(async () => {
         if (!currentToken) return;
         try {
           const res = await apiPost({ action: 'heartbeat', token: currentToken });
-          if (res.ok && typeof res.liveCount === 'number') {
-            setLiveCountUI(res.liveCount);
+          if (res.ok) {
+            if (typeof res.liveCount === 'number') {
+              setLiveCountUI(res.liveCount);
+            }
+          } else {
+            // Session was ended from another device, expired, or reset by Admin
+            handleForcedLocalLogout(res.error || 'Session ended. Please sign in again.');
           }
         } catch (e) {}
       }, 25000);
@@ -760,6 +847,28 @@
 
     function clearAuthMsg() {
       $('authMessage').classList.add('hidden');
+      $('forceLogoutBox').classList.add('hidden');
+    }
+
+    function switchAuthTab(tab, shouldClearMsg = true) {
+      if (tab === 'signup') {
+        $('tabSignup').classList.add('active');
+        $('tabSignup').setAttribute('aria-selected', 'true');
+        $('tabSignin').classList.remove('active');
+        $('tabSignin').setAttribute('aria-selected', 'false');
+        $('signupForm').classList.remove('hidden');
+        $('signinForm').classList.add('hidden');
+      } else {
+        $('tabSignin').classList.add('active');
+        $('tabSignin').setAttribute('aria-selected', 'true');
+        $('tabSignup').classList.remove('active');
+        $('tabSignup').setAttribute('aria-selected', 'false');
+        $('signinForm').classList.remove('hidden');
+        $('signupForm').classList.add('hidden');
+      }
+      if (shouldClearMsg) {
+        clearAuthMsg();
+      }
     }
 
     function showAdminAlert(msg, isError) {
@@ -804,6 +913,7 @@
     }
 
     function renderLoggedInView() {
+      $('restoringView').classList.add('hidden');
       $('authView').classList.add('hidden');
       $('btnSignOutHeader').classList.remove('hidden');
       startHeartbeat();
@@ -828,6 +938,7 @@
         heartbeatTimer = null;
       }
       const tokenToClear = currentToken;
+      clearSavedToken();
       currentToken = '';
       currentUser = null;
       allUsers = [];
@@ -1080,39 +1191,29 @@
       });
     }
 
-    $('tabSignin').onclick = () => {
-      $('tabSignin').classList.add('active');
-      $('tabSignup').classList.remove('active');
-      $('signinForm').classList.remove('hidden');
-      $('signupForm').classList.add('hidden');
-      clearAuthMsg();
-    };
-
-    $('tabSignup').onclick = () => {
-      $('tabSignup').classList.add('active');
-      $('tabSignin').classList.remove('active');
-      $('signupForm').classList.remove('hidden');
-      $('signinForm').classList.add('hidden');
-      clearAuthMsg();
-    };
-
-    $('signinForm').onsubmit = async (e) => {
-      e.preventDefault();
+    async function performSignin(forceLogout) {
       clearAuthMsg();
       $('signinBtn').disabled = true;
-      $('signinBtn').textContent = 'Signing in...';
+      $('btnForceLogoutSignin').disabled = true;
+      $('signinBtn').textContent = forceLogout ? 'Switching device...' : 'Signing in...';
+
       try {
         const res = await apiPost({
           action: 'signin',
           mobileNo: $('signinMobile').value,
           password: $('signinPassword').value,
+          forceLogout: Boolean(forceLogout),
         });
         if (!res.ok) {
           showAuthMsg(res.error || 'Sign in failed.', true);
+          if (res.code === 'ALREADY_SIGNED_IN') {
+            $('forceLogoutBox').classList.remove('hidden');
+          }
           return;
         }
         currentToken = res.token;
         currentUser = res.user;
+        saveToken(currentToken);
         if (typeof res.liveCount === 'number') {
           setLiveCountUI(res.liveCount);
         }
@@ -1121,8 +1222,54 @@
         showAuthMsg(err.message || 'Connection error.', true);
       } finally {
         $('signinBtn').disabled = false;
+        $('btnForceLogoutSignin').disabled = false;
         $('signinBtn').textContent = 'Sign In';
       }
+    }
+
+    async function restoreSession() {
+      const savedToken = loadSavedToken();
+      if (!savedToken) {
+        refreshLiveCount();
+        return;
+      }
+
+      $('authView').classList.add('hidden');
+      $('restoringView').classList.remove('hidden');
+
+      try {
+        const res = await apiPost({ action: 'getSession', token: savedToken });
+        if (res.ok && res.user) {
+          currentToken = savedToken;
+          currentUser = res.user;
+          if (typeof res.liveCount === 'number') {
+            setLiveCountUI(res.liveCount);
+          }
+          renderLoggedInView();
+          return;
+        }
+        handleForcedLocalLogout(res.error || '');
+      } catch (e) {
+        // Network error during restore — fall back to Sign In screen
+        $('restoringView').classList.add('hidden');
+        $('authView').classList.remove('hidden');
+        refreshLiveCount();
+      }
+    }
+
+    $('tabSignin').onclick = () => switchAuthTab('signin', true);
+    $('tabSignup').onclick = () => switchAuthTab('signup', true);
+
+    $('signinMobile').oninput = () => $('forceLogoutBox').classList.add('hidden');
+    $('signinPassword').oninput = () => $('forceLogoutBox').classList.add('hidden');
+
+    $('signinForm').onsubmit = (e) => {
+      e.preventDefault();
+      performSignin(false);
+    };
+
+    $('btnForceLogoutSignin').onclick = () => {
+      performSignin(true);
     };
 
     $('signupForm').onsubmit = async (e) => {
@@ -1131,11 +1278,12 @@
       $('signupBtn').disabled = true;
       $('signupBtn').textContent = 'Creating account...';
       try {
+        const enteredMobile = $('signupMobile').value.trim();
         const res = await apiPost({
           action: 'signup',
           gramPanchayat: $('signupGp').value,
           userName: $('signupName').value,
-          mobileNo: $('signupMobile').value,
+          mobileNo: enteredMobile,
           password: $('signupPassword').value,
         });
         if (!res.ok) {
@@ -1145,13 +1293,16 @@
         if (res.token && res.user) {
           currentToken = res.token;
           currentUser = res.user;
+          saveToken(currentToken);
           if (typeof res.liveCount === 'number') {
             setLiveCountUI(res.liveCount);
           }
           renderLoggedInView();
         } else {
-          showAuthMsg(res.message || 'Registered! Please sign in.', false);
-          $('tabSignin').click();
+          $('signupForm').reset();
+          if (enteredMobile) $('signinMobile').value = enteredMobile;
+          switchAuthTab('signin', false);
+          showAuthMsg(res.message || 'Account created. Contact GP Admin for App permission.', false);
         }
       } catch (err) {
         showAuthMsg(err.message || 'Connection error.', true);
@@ -1213,7 +1364,7 @@
       }
     };
 
-    refreshLiveCount();
+    restoreSession();
     livePollTimer = setInterval(refreshLiveCount, 20000);
   </script>
 </body>
