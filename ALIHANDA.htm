@@ -1,969 +1,1477 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0f172a" />
-<title>Beneficiary Verification</title>
-<style>
-  :root {
-    --bg:#f4f6fb; --card:#fff; --ink:#0f172a; --muted:#64748b; --line:#e2e8f0;
-    --accent:#2563eb; --accent-soft:#dbeafe; --ok:#059669; --ok-soft:#d1fae5;
-    --warn:#d97706; --warn-soft:#fef3c7; --err:#dc2626; --err-soft:#fee2e2; --radius:14px;
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: var(--bg); color: var(--ink); font-size: 16px; line-height: 1.5;
-    padding-bottom: calc(28px + env(safe-area-inset-bottom));
-  }
-  .hidden { display: none !important; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Beneficiary Verification — WCD Pension Life Certificate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue-900: #0f3a8a;
+      --blue-700: #1d4ed8;
+      --blue-600: #2563eb;
+      --sky-500: #0284c7;
+      --ice-50: #eff6ff;
+      --ice-100: #dbeafe;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #dbeafe;
+      --white: #ffffff;
+      --emerald: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background:
+        radial-gradient(880px 420px at 10% -6%, rgba(59, 130, 246, 0.16), transparent 60%),
+        radial-gradient(760px 380px at 95% 2%, rgba(14, 165, 233, 0.14), transparent 55%),
+        linear-gradient(180deg, #eff6ff 0%, #f8fbff 52%, #ffffff 100%);
+      padding-bottom: 32px;
+    }
+    h1, h2, h3 { font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .hidden { display: none !important; }
 
-  header {
-    position: sticky; top: 0; z-index: 20; background: var(--ink); color: #fff;
-    padding: 14px 16px; padding-top: calc(14px + env(safe-area-inset-top));
-    box-shadow: 0 2px 8px rgba(0,0,0,.08);
-    display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  }
-  header .title h1 { font-size: 17px; margin: 0; font-weight: 600; }
-  header .title p  { font-size: 12px; margin: 2px 0 0; opacity: .75; }
-  header .user-box { display: flex; align-items: center; gap: 8px; font-size: 12px; }
-  header .user-box strong { font-size: 13px; }
-  header .logout-btn {
-    background: rgba(255,255,255,.15); border: none; color: #fff;
-    font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px;
-    cursor: pointer; font-family: inherit;
-  }
-  header .admin-btn {
-    background: #f59e0b; border: none; color: #fff;
-    font-size: 12px; font-weight: 600; padding: 6px 10px; border-radius: 8px;
-    cursor: pointer; font-family: inherit;
-  }
+    .app-header {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--sky-500) 100%);
+      color: #fff;
+      padding: 12px 14px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      box-shadow: 0 10px 26px -12px rgba(15, 58, 138, 0.5);
+    }
+    .header-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .sync-btn {
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 11px;
+      border: 1px solid rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.16);
+      color: #fff;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .main-shell {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 14px 12px 24px;
+    }
+    .card {
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 14px 34px -22px rgba(15, 58, 138, 0.28);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .cam-perm-bar {
+      background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%);
+      border: 1px solid #93c5fd;
+      border-radius: 16px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .stat-tile {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+    .stat-k { font-size: 10px; color: var(--muted); font-weight: 600; }
+    .stat-v { font-size: 18px; font-weight: 800; margin-top: 2px; font-variant-numeric: tabular-nums; }
 
-  main { padding: 16px; max-width: 680px; margin: 0 auto; }
-  .locked-gp {
-    background: var(--accent-soft); color: var(--accent); border-radius: 10px;
-    padding: 10px 14px; font-size: 13px; margin-bottom: 14px;
-    display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
-  }
-  .locked-gp strong { color: var(--accent); }
+    .input, .select {
+      width: 100%;
+      min-height: 46px;
+      padding: 10px 12px;
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+    .input:focus, .select:focus {
+      border-color: var(--blue-600);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    }
+    .btn {
+      min-height: 46px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      white-space: nowrap;
+      text-decoration: none;
+    }
+    .btn-grad {
+      background: linear-gradient(135deg, var(--blue-900) 0%, var(--blue-700) 55%, var(--sky-500) 100%);
+      color: #fff;
+      box-shadow: 0 10px 20px -10px rgba(29, 78, 216, 0.55);
+    }
+    .btn-emerald {
+      background: linear-gradient(135deg, #15803d 0%, #16a34a 55%, #22c55e 100%);
+      color: #fff;
+      box-shadow: 0 10px 22px -10px rgba(22, 163, 74, 0.65);
+    }
+    .btn-outline {
+      background: #fff;
+      color: var(--blue-900);
+      border: 1px solid #bfdbfe;
+    }
+    .btn:disabled { opacity: 0.55; cursor: not-allowed; }
 
-  .search-card {
-    background: var(--card); border-radius: var(--radius); padding: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,.06); margin-bottom: 16px;
-  }
-  .field-label {
-    font-size: 12px; font-weight: 600; color: var(--muted);
-    text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px;
-  }
-  select, input[type="search"] {
-    width: 100%; font-size: 16px; padding: 12px 14px; border: 1.5px solid var(--line);
-    border-radius: 10px; background: #fff; color: var(--ink); outline: none; font-family: inherit;
-  }
-  select:focus, input[type="search"]:focus { border-color: var(--accent); }
-  .row { display: flex; gap: 10px; margin-bottom: 10px; }
-  .row > * { flex: 1; min-width: 0; }
-  .row > select { flex: 0 0 42%; }
+    .list-scroll {
+      max-height: 62vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      scrollbar-width: thin;
+      scrollbar-color: #93c5fd #eff6ff;
+    }
+    .list-scroll::-webkit-scrollbar { width: 7px; }
+    .list-scroll::-webkit-scrollbar-track { background: #eff6ff; border-radius: 8px; }
+    .list-scroll::-webkit-scrollbar-thumb { background: #60a5fa; border-radius: 8px; }
 
-  button.primary, button.secondary, button.ok-btn {
-    font-family: inherit; font-size: 15px; font-weight: 600; border: none;
-    border-radius: 10px; padding: 12px 16px; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-  }
-  button.primary { background: var(--accent); color: #fff; width: 100%; margin-top: 8px; }
-  button.secondary { background: #f1f5f9; color: var(--ink); border: 1px solid var(--line); font-size: 14px; }
-  button.ok-btn { background: var(--ok); color: #fff; width: 100%; }
-  button:disabled { opacity: .55; cursor: not-allowed; }
-  .btn-spinner {
-    width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.4);
-    border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; display: none;
-  }
-  button.loading .btn-spinner { display: inline-block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+    .ben-card {
+      background: #ffffff;
+      border: 1px solid #dbeafe;
+      border-radius: 14px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .edit-pencil-btn {
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      border-radius: 12px;
+      border: 1px solid #bfdbfe;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      color: var(--blue-700);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .edit-pencil-btn:active { transform: scale(0.95); }
 
-  .status { display: none; padding: 12px 14px; border-radius: 10px; font-size: 14px; margin-bottom: 14px; }
-  .status.show { display: block; }
-  .status.info  { background: var(--accent-soft); color: var(--accent); }
-  .status.ok    { background: var(--ok-soft);     color: var(--ok); }
-  .status.err   { background: var(--err-soft);    color: var(--err); }
-  .status.empty { background: var(--warn-soft);   color: var(--warn); }
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px 12px;
+      font-size: 12.5px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+    }
+    .kv-k { font-size: 11px; color: var(--muted); }
+    .kv-v { font-weight: 600; color: var(--text); word-break: break-word; }
 
-  .spinner-wrap { display: none; justify-content: center; align-items: center; padding: 40px 0; }
-  .spinner-wrap.show { display: flex; }
-  .spinner {
-    width: 42px; height: 42px; border: 4px solid var(--line);
-    border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite;
-  }
-
-  .result {
-    background: var(--card); border-radius: var(--radius); margin-bottom: 14px;
-    overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid var(--line);
-  }
-  .result-head {
-    padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
-    gap: 10px; cursor: pointer;
-  }
-  .result-head .name { font-weight: 700; font-size: 16px; }
-  .result-head .id   { font-size: 12px; color: var(--muted); font-family: ui-monospace, monospace; }
-  .badge {
-    font-size: 11px; font-weight: 700; padding: 4px 9px; border-radius: 999px;
-    text-transform: uppercase; letter-spacing: .4px; white-space: nowrap;
-  }
-  .badge.ok   { background: var(--ok-soft);   color: var(--ok); }
-  .badge.warn { background: var(--warn-soft); color: var(--warn); }
-  .badge.err  { background: var(--err-soft);  color: var(--err); }
-
-  .result-body { padding: 14px; display: none; border-top: 1px solid var(--line); }
-  .result.open .result-body { display: block; }
-  dl { margin: 0; display: grid; grid-template-columns: 42% 58%; gap: 6px 10px; }
-  dt { color: var(--muted); font-size: 13px; }
-  dd { margin: 0; font-size: 14px; word-break: break-word; }
-  dd.mono { font-family: ui-monospace, monospace; font-size: 13px; }
-  .chev { transition: transform .2s; color: var(--muted); font-size: 12px; }
-  .result.open .chev { transform: rotate(180deg); }
-
-  .verify-box { margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line); }
-  .verify-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 10px; }
-  .verify-grid { display: grid; gap: 12px; }
-  .action-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-  .preview-thumb {
-    width: 100%; max-height: 210px; object-fit: contain; border-radius: 10px;
-    border: 1px solid var(--line); background: #f8fafc; margin-top: 8px;
-  }
-  .kyc-summary {
-    background: #f8fafc; border: 1px solid var(--line); border-radius: 10px;
-    padding: 10px 12px; font-size: 13px; color: var(--ink);
-  }
-  .audit-line { font-size: 12px; color: var(--muted); margin-top: 8px; }
-
-  /* Camera & KYC Modal */
-  .modal-backdrop {
-    position: fixed; inset: 0; z-index: 50; background: rgba(15,23,42,.74);
-    display: flex; align-items: center; justify-content: center; padding: 12px;
-  }
-  .modal-card {
-    background: #fff; border-radius: 16px; width: 100%; max-width: 560px;
-    max-height: 92vh; overflow-y: auto; padding: 16px;
-    box-shadow: 0 20px 50px rgba(0,0,0,.25);
-  }
-  .modal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-  .modal-head h3 { margin: 0; font-size: 16px; }
-  .close-btn {
-    background: #f1f5f9; border: none; border-radius: 8px; padding: 6px 10px;
-    font-weight: 600; cursor: pointer; font-size: 13px;
-  }
-  .video-stage {
-    position: relative; width: 100%; aspect-ratio: 4/3; background: #0f172a;
-    border-radius: 12px; overflow: hidden;
-  }
-  .video-stage video, .video-stage canvas {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-  }
-  .doc-guide {
-    position: absolute; inset: 10% 8%; border: 2px dashed rgba(255,255,255,.75);
-    border-radius: 10px; pointer-events: none;
-  }
-  .kyc-metrics { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin: 12px 0; }
-  .metric-cell {
-    border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12.5px;
-  }
-  .metric-cell.pass { background: var(--ok-soft); border-color: #a7f3d0; color: #065f46; }
-  .metric-cell strong { display: block; font-size: 13px; margin-top: 2px; }
-  .prompt-banner {
-    background: var(--accent-soft); color: var(--accent); padding: 9px 12px;
-    border-radius: 10px; font-size: 13px; font-weight: 600; margin: 10px 0;
-  }
-
-  .result-count { font-size: 13px; color: var(--muted); margin: 0 0 10px 2px; }
-  .footer-note { text-align: center; color: var(--muted); font-size: 12px; margin: 24px 0 8px; }
-</style>
+    .cam-box {
+      background: #020617;
+      border-radius: 14px;
+      overflow: hidden;
+      color: #fff;
+      margin-top: 8px;
+    }
+    .cam-stage { position: relative; aspect-ratio: 3/4; background: #000; overflow: hidden; }
+    .cam-stage video, .cam-stage canvas {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    }
+    .face-outline-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .frame-guide-pill {
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 4;
+      background: rgba(2, 6, 23, 0.78);
+      border: 1px solid rgba(56, 189, 248, 0.6);
+      color: #e0f2fe;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+    }
+    .frame-guide-pill.aligned {
+      border-color: rgba(250, 204, 21, 0.75);
+      color: #fef08a;
+    }
+    .frame-guide-pill.ready {
+      background: rgba(6, 78, 59, 0.88);
+      border-color: #22c55e;
+      color: #bbf7d0;
+    }
+    .snap-overlay-btn {
+      position: absolute;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 5;
+      min-height: 44px;
+      padding: 0 20px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.85);
+      background: rgba(15, 23, 42, 0.72);
+      color: #cbd5e1;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(6px);
+      white-space: nowrap;
+    }
+    .snap-overlay-btn.ready {
+      background: linear-gradient(135deg, #15803d 0%, #16a34a 60%, #22c55e 100%);
+      border-color: #dcfce7;
+      color: #ffffff;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.28);
+      animation: pulseCap 1.6s infinite;
+    }
+    .snap-overlay-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      animation: none;
+    }
+    @keyframes pulseCap {
+      0%, 100% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.35); }
+      50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0.15); }
+    }
+    .mirror { transform: scaleX(-1); }
+    .rd-steps-wrap {
+      background: #020617;
+      border-top: 1px solid #1e293b;
+      padding: 10px;
+    }
+    .rd-steps-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #cbd5e1;
+      margin-bottom: 8px;
+    }
+    .rd-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .rd-step {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      padding: 7px 9px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background: #0f172a;
+      color: #cbd5e1;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    .rd-step.pass {
+      border-color: rgba(34, 197, 94, 0.55);
+      background: rgba(6, 78, 59, 0.55);
+      color: #bbf7d0;
+    }
+    .rd-step-l {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+    }
+    .rd-tick {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: #64748b;
+      font-size: 11px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .rd-step.pass .rd-tick {
+      border-color: #22c55e;
+      background: #16a34a;
+      color: #ffffff;
+    }
+    .rd-det {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      opacity: 0.85;
+      white-space: nowrap;
+    }
+    .ear-thumbs {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+      flex-wrap: wrap;
+    }
+    .ear-thumb-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 10px;
+      font-weight: 700;
+      color: #15803d;
+    }
+    .ear-thumb-card img {
+      width: 48px;
+      height: 58px;
+      object-fit: cover;
+      border-radius: 6px;
+      border: 1px solid #86efac;
+      background: #0f172a;
+    }
+    .alert {
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      margin-bottom: 12px;
+    }
+    .alert-err { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
+    .alert-ok { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; }
+    .alert-warn { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; font-size: 12px; padding: 10px 12px; border-radius: 10px; }
+  </style>
 </head>
 <body>
-<header>
-  <div class="title">
-    <h1>Beneficiary Verification</h1>
-    <p>Search &amp; verify your GP's data</p>
-  </div>
-  <div class="user-box">
-    <strong id="whoami">—</strong>
-    <button id="adminBtn" class="admin-btn hidden">Admin</button>
-    <button id="logoutBtn" class="logout-btn">Logout</button>
-  </div>
-</header>
-
-<main>
-  <div class="locked-gp">
-    <span>Locked to GP / Ward: <strong id="gpLocked">—</strong></span>
-    <span style="font-size:12px;">Sheet: <strong>Data</strong></span>
-  </div>
-
-  <div class="search-card">
-    <div class="field-label">Search by (partial match)</div>
-    <div class="row">
-      <select id="searchField">
-        <option value="Beneficiary Id">Beneficiary ID</option>
-        <option value="Applicant Name">Applicant Name</option>
-        <option value="Applicant Mobile No.">Mobile No.</option>
-        <option value="Aadhaar NO.">Aadhaar No.</option>
-        <option value="Bank Account No.">Bank Account No.</option>
-        <option value="EPIC No.">EPIC No.</option>
-      </select>
-      <input id="searchValue" type="search" placeholder="Start typing…" autocomplete="off" inputmode="text" />
-    </div>
-    <button id="searchBtn" class="primary">
-      <span class="btn-spinner"></span><span>Search</span>
-    </button>
-  </div>
-
-  <div id="status" class="status"></div>
-  <div id="count" class="result-count"></div>
-  <div id="spinner" class="spinner-wrap"><div class="spinner"></div></div>
-  <div id="results"></div>
-  <div class="footer-note">Data source: Google Sheet (Data) via Apps Script Web App</div>
-</main>
-
-<!-- Document Camera Modal -->
-<div id="docModal" class="modal-backdrop hidden">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>Capture Life Certificate Form</h3>
-      <button type="button" class="close-btn" onclick="closeDocCamera()">Close</button>
-    </div>
-    <div class="video-stage">
-      <video id="docVideo" autoplay playsinline muted></video>
-      <img id="docPreviewImg" class="hidden" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#0f172a;" alt="Captured Form" />
-      <div id="docGuide" class="doc-guide"></div>
-    </div>
-    <canvas id="docCanvas" class="hidden"></canvas>
-    <div id="docStatus" class="status info show" style="margin-top:10px;">Align the signed Life Certificate Form inside the frame.</div>
-    <div class="action-row" style="margin-top:10px;">
-      <button type="button" id="docFlipBtn" class="secondary" onclick="flipDocCamera()">Switch Camera</button>
-      <button type="button" id="docCaptureBtn" class="primary" style="flex:1;margin-top:0;" onclick="captureDocFrame()">Capture Photo</button>
-      <button type="button" id="docRetakeBtn" class="secondary hidden" onclick="retakeDocFrame()">Retake</button>
-      <button type="button" id="docConfirmBtn" class="ok-btn hidden" style="flex:1;" onclick="confirmDocCapture()">Use Captured Photo</button>
-    </div>
-  </div>
-</div>
-
-<!-- Advanced Liveness KYC Modal -->
-<div id="kycModal" class="modal-backdrop hidden">
-  <div class="modal-card">
-    <div class="modal-head">
-      <h3>Live Beneficiary Liveness KYC</h3>
-      <button type="button" class="close-btn" onclick="closeKycModal()">Close</button>
-    </div>
-    <div class="video-stage">
-      <video id="kycVideo" autoplay playsinline muted style="transform:scaleX(-1);"></video>
-      <canvas id="kycOverlay" style="transform:scaleX(-1);"></canvas>
-    </div>
-    <div id="kycPrompt" class="prompt-banner">Initializing face &amp; liveness detector…</div>
-    <div class="kyc-metrics">
-      <div id="mFace" class="metric-cell">Face Detected<strong>Waiting…</strong></div>
-      <div id="mEyes" class="metric-cell">Eyes &amp; Blinks<strong id="mEyesVal">0 / 2 blinks</strong></div>
-      <div id="mEars" class="metric-cell">Ears (L / R)<strong id="mEarsVal">Turn slightly L/R</strong></div>
-      <div id="mMotion" class="metric-cell">Face Motion<strong id="mMotionVal">0.0</strong></div>
-    </div>
-    <div class="action-row">
-      <button type="button" id="kycResetBtn" class="secondary" onclick="resetKycSession()">Reset</button>
-      <button type="button" id="kycConfirmBtn" class="ok-btn" style="flex:1;" disabled onclick="confirmKycCapture()">Complete &amp; Attach KYC</button>
-    </div>
-  </div>
-</div>
-
-<script type="module">
-import { FaceLandmarker, FilesetResolver } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/vision_bundle.mjs";
-window.__MP_Vision = { FaceLandmarker, FilesetResolver };
-</script>
-
-<script>
-// ===== CONFIG (HARDCODED FOR GITHUB PAGES) =====
-const GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxJN14XdHT-Mra0uJkdmf7W6trqZVsS66ewurJ2Y4q0NOxUjdbLXBFnbcSsx8EdflCq/exec";
-const MAX_RESULTS    = 50;
-const DEBOUNCE_MS    = 400;
-const SESSION_KEY    = "auth_session_v1";
-const REMARKS_LIST   = ["Alive", "Death", "Absent", "Permanently Shifted", "Not Found"];
-// ================================================
-
-const $ = id => document.getElementById(id);
-
-let session = null;
-let lockedGP = "";
-let debounceTimer = null;
-let activeRequest = 0;
-const draftState = {}; // keyed by Beneficiary Id
-
-// Camera & Liveness state
-let docStream = null;
-let docFacingMode = "environment";
-let docTargetId = "";
-let docCapturedDataUrl = "";
-
-let kycStream = null;
-let kycTargetId = "";
-let kycLandmarker = null;
-let kycRaf = 0;
-let kycState = null;
-
-function esc(s) {
-  if (s === null || s === undefined || s === "") return '<span style="color:#94a3b8">—</span>';
-  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
-}
-function cleanRaw(v) { return String(v).trim().replace(/^['"`]+|['"`]+$/g, ""); }
-function normalizeForField(field, v) {
-  const s = cleanRaw(v);
-  const d = s.replace(/\D/g, "");
-  switch (field) {
-    case "Applicant Mobile No.":
-      if (d.length === 12 && d.startsWith("91")) return d.slice(2);
-      if (d.length === 11 && d.startsWith("0"))  return d.slice(1);
-      return d;
-    case "Aadhaar NO.": case "Bank Account No.": case "Beneficiary Id": case "EPIC No.":
-      return d || s;
-    default:
-      return s.replace(/\s+/g, " ");
-  }
-}
-function setStatus(m, k) { $("status").className = "status " + k + " show"; $("status").textContent = m; }
-function clearStatus() { $("status").className = "status"; $("status").textContent = ""; }
-function showSpinner() { $("spinner").classList.add("show"); $("searchBtn").classList.add("loading"); $("searchBtn").disabled = true; }
-function hideSpinner() { $("spinner").classList.remove("show"); $("searchBtn").classList.remove("loading"); $("searchBtn").disabled = false; }
-
-function paymentBadge(s) {
-  const v = (s || "").toLowerCase();
-  if (v.includes("paid") || v.includes("success") || v.includes("complete"))
-    return '<span class="badge ok">' + esc(s) + '</span>';
-  if (v.includes("pending") || v.includes("process"))
-    return '<span class="badge warn">' + esc(s) + '</span>';
-  if (v.includes("fail") || v.includes("reject"))
-    return '<span class="badge err">' + esc(s) + '</span>';
-  return '<span class="badge warn">' + esc(s || "Unknown") + '</span>';
-}
-
-// ---------- Search via Hardcoded GAS Web App URL ----------
-async function search() {
-  if (!session) return;
-  if (GAS_WEBAPP_URL.includes("YOUR_DEPLOYMENT_ID_HERE")) {
-    setStatus("Set your deployed Google Apps Script Web App URL in GAS_WEBAPP_URL.", "err");
-    return;
-  }
-
-  const field = $("searchField").value;
-  const raw   = $("searchValue").value;
-  const v     = normalizeForField(field, raw);
-
-  $("results").innerHTML = "";
-  $("count").textContent = "";
-  clearStatus();
-  if (!v) { hideSpinner(); return; }
-
-  showSpinner();
-  const reqId = ++activeRequest;
-
-  const url = `${GAS_WEBAPP_URL}?action=search&field=${encodeURIComponent(field)}&q=${encodeURIComponent(v)}&gp=${encodeURIComponent(lockedGP)}`;
-
-  try {
-    const res = await fetch(url, { method: "GET", redirect: "follow" });
-    if (reqId !== activeRequest) return;
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    if (reqId !== activeRequest) return;
-    if (!data.ok) throw new Error(data.error || "Search failed");
-
-    const rows = data.rows || [];
-    if (!rows.length) {
-      setStatus(lockedGP ? `No match in ${lockedGP}.` : "No matching beneficiary found.", "empty");
-      return;
-    }
-
-    $("count").textContent = data.truncated
-      ? `Showing first ${MAX_RESULTS} of ${data.totalMatched} matches — refine your search`
-      : `${rows.length} match${rows.length > 1 ? "es" : ""} found`;
-
-    rows.forEach(row => $("results").appendChild(renderCard(row)));
-    if (rows.length === 1) $("results").firstChild.classList.add("open");
-  } catch (err) {
-    if (reqId !== activeRequest) return;
-    setStatus("Error: " + err.message, "err");
-  } finally {
-    if (reqId === activeRequest) hideSpinner();
-  }
-}
-
-function scheduleSearch() {
-  clearTimeout(debounceTimer);
-  if (!$("searchValue").value.trim()) {
-    activeRequest++;
-    $("results").innerHTML = "";
-    clearStatus();
-    $("count").textContent = "";
-    hideSpinner();
-    return;
-  }
-  debounceTimer = setTimeout(search, DEBOUNCE_MS);
-}
-
-function ensureDraft(r) {
-  const id = r["Beneficiary Id"];
-  if (!draftState[id]) {
-    draftState[id] = {
-      rowNumber: r._rowNumber,
-      remarks: r["Remarks"] || "",
-      existingLifeCertUrl: r["Life Certificate Form"] || "",
-      lifeCertBase64: "",
-      kycData: r["Beneficiary KYC Data"] || "",
-      kycSnapshotBase64: ""
-    };
-  }
-  return draftState[id];
-}
-
-function formatKycPreview(raw) {
-  if (!raw) return '<span style="color:#64748b;">No liveness KYC captured yet.</span>';
-  try {
-    const k = JSON.parse(raw);
-    return `
-      <strong>${esc(k.status || "RECORDED")}</strong> ·
-      Face: ${k.faceDetected ? "Yes" : "No"} ·
-      Eyes: ${k.eyesDetected ? "Yes" : "No"} ·
-      Blinks: <strong>${k.blinksCount || 0}</strong> ·
-      Ears: L(${k.leftEarDetected ? "OK" : "—"}) / R(${k.rightEarDetected ? "OK" : "—"}) ·
-      Motion: ${k.motionMagnitude || 0} ·
-      Confidence: ${k.livenessConfidence || 0}%
-    `;
-  } catch {
-    return esc(raw);
-  }
-}
-
-function renderCard(r) {
-  const id = r["Beneficiary Id"];
-  const draft = ensureDraft(r);
-  const safeDomId = id.replace(/[^a-zA-Z0-9_-]/g, "_");
-  const card = document.createElement("div");
-  card.className = "result";
-
-  const fields = [
-    ["Beneficiary Id", r["Beneficiary Id"], true],
-    ["Applicant Name", r["Applicant Name"]],
-    ["Gender", r["Applicant Gender"]],
-    ["Mobile No.", r["Applicant Mobile No."], true],
-    ["DOB", r["Applicant DOB."]],
-    ["Age", r["Age"]],
-    ["Caste", r["Caste"]],
-    ["Aadhaar No.", r["Aadhaar NO."], true],
-    ["Bank IFSC", r["Bank IFSC"], true],
-    ["Bank Account No.", r["Bank Account No."], true],
-    ["Ration Card No.", r["Ration Card No."]],
-    ["EPIC No.", r["EPIC No."], true],
-    ["Father's Name", r["Father's Name"]],
-    ["Mother's Name", r["Mother's Name"]],
-    ["Spouse Name", r["Spouse Name"]],
-    ["GP / Ward", r["GP/WARD"]],
-    ["Village / Town / City", r["Village/Town/City"]],
-    ["House Premise No.", r["House Premise No"]],
-    ["Post Office", r["Post Office"]],
-    ["PIN Code", r["PIN Code"], true],
-    ["Duare Sarkar Phase", r["Duare Sarkar Phase"]],
-    ["Type", r["TYPE"]],
-    ["Payment Status", r["Payment Status"]]
-  ];
-
-  const remarksOpts = ['<option value="">— Select Remarks —</option>']
-    .concat(REMARKS_LIST.map(opt => `<option value="${esc(opt)}" ${draft.remarks === opt ? "selected" : ""}>${esc(opt)}</option>`))
-    .join("");
-
-  card.innerHTML = `
-    <div class="result-head">
-      <div>
-        <div class="name">${esc(r["Applicant Name"] || "Unnamed")}</div>
-        <div class="id">${esc(id)}</div>
+  <header class="app-header">
+    <div class="header-inner">
+      <div style="min-width:0;">
+        <h1 style="font-size:15.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">WCD Life Certificate</h1>
+        <div id="operatorLine" style="font-size:11.5px;opacity:0.92;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
       </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${paymentBadge(r["Payment Status"])}
-        <span class="chev">▼</span>
+      <button id="btnSync" class="sync-btn" type="button">Sync Sheet</button>
+    </div>
+  </header>
+
+  <main class="main-shell">
+    <div id="globalAlert" class="alert hidden"></div>
+
+    <!-- ONE-TIME CAMERA PERMISSION BAR -->
+    <div id="camPermBar" class="cam-perm-bar hidden">
+      <div style="font-size:12px;color:#1e3a8a;flex:1;min-width:180px;">
+        <strong id="camPermTitle">Camera Permission Needed</strong>
+        <div id="camPermDesc" style="color:#475569;margin-top:2px;">Allow camera once for Life Certificate &amp; Face RD KYC.</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button id="btnPermitCamOnce" class="btn btn-grad" type="button" style="min-height:40px;font-size:12px;padding:0 14px;">Enable Camera</button>
+        <a id="btnOpenTopWin" class="btn btn-outline hidden" href="#" target="_top" style="min-height:40px;font-size:12px;padding:0 12px;">Open Full Screen</a>
       </div>
     </div>
-    <div class="result-body">
-      <dl>
-        ${fields.map(([l, val, m]) => `<dt>${esc(l)}</dt><dd class="${m ? "mono" : ""}">${esc(val)}</dd>`).join("")}
-      </dl>
 
-      <div class="verify-box">
-        <div class="verify-title">Verification &amp; Editable Record</div>
-        <div class="verify-grid">
-          <div>
-            <div class="field-label">Remarks</div>
-            <select id="rem_${safeDomId}">${remarksOpts}</select>
+    <!-- BENEFICIARY LIST VIEW -->
+    <section id="listView">
+      <div class="stats-row">
+        <div class="stat-tile"><div class="stat-k">Total</div><div id="statTotal" class="stat-v">0</div></div>
+        <div class="stat-tile"><div class="stat-k">Alive</div><div id="statAlive" class="stat-v" style="color:var(--emerald);">0</div></div>
+        <div class="stat-tile"><div class="stat-k">Pending</div><div id="statPending" class="stat-v" style="color:var(--amber);">0</div></div>
+        <div class="stat-tile"><div class="stat-k">Other</div><div id="statOther" class="stat-v" style="color:var(--muted);">0</div></div>
+      </div>
+
+      <div class="card" style="padding:12px;">
+        <div style="display:grid;gap:8px;">
+          <input id="searchInput" class="input" type="search" placeholder="Search Name, Beneficiary ID, Mobile, Aadhaar..." />
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="statusFilter" class="select">
+              <option value="ALL">All Statuses</option>
+              <option value="PENDING">Pending Only</option>
+              <option value="Alive">Alive</option>
+              <option value="Death">Death</option>
+              <option value="Shifted">Shifted</option>
+              <option value="Absent">Absent</option>
+              <option value="Not Traced">Not Traced</option>
+            </select>
           </div>
-
-          <div>
-            <div class="field-label">Life Certificate Form (Camera Capture &amp; Upload)</div>
-            <div class="action-row">
-              <button type="button" class="secondary" onclick="openDocCamera('${id.replace(/'/g, "\\'")}')">Capture Form Camera</button>
-              <label class="secondary" style="cursor:pointer;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:#f1f5f9;font-size:14px;font-weight:600;">
-                Upload Image
-                <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleDocFileInput(event, '${id.replace(/'/g, "\\'")}')" />
-              </label>
-            </div>
-            <div id="docInfo_${safeDomId}" style="margin-top:8px;font-size:13px;">
-              ${draft.lifeCertBase64
-                ? `<img src="${draft.lifeCertBase64}" class="preview-thumb" alt="Life Certificate Preview" />`
-                : (draft.existingLifeCertUrl
-                  ? `<a href="${esc(draft.existingLifeCertUrl)}" target="_blank" rel="noopener">View uploaded Life Certificate in Drive</a>`
-                  : '<span style="color:#64748b;">No document captured yet.</span>')}
-            </div>
-          </div>
-
-          <div>
-            <div class="field-label">Beneficiary KYC Data (Liveness Camera Verification)</div>
-            <div class="action-row" style="margin-bottom:8px;">
-              <button type="button" class="secondary" onclick="openKycModal('${id.replace(/'/g, "\\'")}')">Start Live Liveness KYC</button>
-            </div>
-            <div id="kycInfo_${safeDomId}" class="kyc-summary">${formatKycPreview(draft.kycData)}</div>
-          </div>
-
-          <div>
-            <button type="button" id="saveBtn_${safeDomId}" class="ok-btn" onclick="saveRow('${id.replace(/'/g, "\\'")}')">
-              <span class="btn-spinner"></span><span>Save to Google Sheet</span>
-            </button>
-            <div id="saveMsg_${safeDomId}" class="audit-line">
-              ${r["User Name"]
-                ? `Last saved by <strong>${esc(r["User Name"])}</strong> on ${esc(r["Date"])} (${esc(r["TimeStamp"])})`
-                : `Signed-in User: <strong>${esc(session ? session.User : "—")}</strong>`}
-            </div>
+          <div id="syncMetaLine" style="font-size:11px;color:#475569;display:flex;justify-content:space-between;">
+            <span id="countMeta">0 beneficiaries</span>
+            <span id="lastSyncMeta" class="mono"></span>
           </div>
         </div>
       </div>
-    </div>`;
 
-  card.querySelector(".result-head").addEventListener("click", () => card.classList.toggle("open"));
-  card.querySelector(`#rem_${safeDomId}`).addEventListener("change", e => {
-    draftState[id].remarks = e.target.value;
-  });
-  return card;
-}
+      <div id="beneficiaryList" class="list-scroll">
+        <div class="card" style="text-align:center;color:#64748b;font-size:13px;">Loading GP data...</div>
+      </div>
+    </section>
 
-window.handleDocFileInput = function(ev, bid) {
-  const file = ev.target.files && ev.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement("canvas");
-      const maxW = 1400;
-      const scale = Math.min(1, maxW / img.width);
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-      const jpeg = canvas.toDataURL("image/jpeg", 0.85);
-      draftState[bid].lifeCertBase64 = jpeg;
-      const safeDomId = bid.replace(/[^a-zA-Z0-9_-]/g, "_");
-      $(`docInfo_${safeDomId}`).innerHTML = `<img src="${jpeg}" class="preview-thumb" alt="Captured Form" />`;
+    <!-- EDIT / VERIFICATION VIEW -->
+    <section id="editView" class="hidden">
+      <button id="btnBackToList" class="btn btn-outline" type="button" style="width:100%;margin-bottom:12px;justify-content:flex-start;">
+        ← Back to Beneficiary List
+      </button>
+
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:10px;">
+          <div style="min-width:0;">
+            <h2 id="detName" style="font-size:17px;font-weight:800;"></h2>
+            <div id="detSub" class="mono" style="font-size:12px;color:#475569;margin-top:2px;"></div>
+          </div>
+          <span id="detStatusText" style="font-size:12px;font-weight:800;white-space:nowrap;"></span>
+        </div>
+        <div id="detFields" class="detail-grid"></div>
+      </div>
+
+      <form id="verifyForm" class="card" style="display:grid;gap:16px;">
+        <div>
+          <label for="remarksSelect" style="display:block;font-size:13px;font-weight:700;margin-bottom:6px;">
+            Remarks *
+          </label>
+          <select id="remarksSelect" class="select" required>
+            <option value="">-- Select Verification Status --</option>
+            <option value="Alive">Alive</option>
+            <option value="Death">Death</option>
+            <option value="Shifted">Shifted</option>
+            <option value="Absent">Absent</option>
+            <option value="Not Traced">Not Traced</option>
+          </select>
+        </div>
+
+        <!-- LIFE CERTIFICATE FORM -->
+        <div>
+          <div style="font-size:13px;font-weight:700;">Life Certificate Form</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:8px;">Capture via camera or upload photo</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <button id="btnFormCam" class="btn btn-grad" type="button">Capture Camera</button>
+            <button id="btnFormUpload" class="btn btn-outline" type="button">Upload Photo</button>
+            <input id="formFileInput" type="file" accept="image/*" class="hidden" />
+            <input id="formNativeCamInput" type="file" accept="image/*" capture="environment" class="hidden" />
+          </div>
+
+          <div id="formCamFallback" class="hidden" style="margin-top:8px;padding:10px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;font-size:12px;color:#92400e;">
+            <div id="formCamErrText"></div>
+            <button id="btnFormNativeCam" type="button" class="btn btn-grad" style="min-height:38px;font-size:12px;margin-top:6px;">Use Phone Native Camera</button>
+          </div>
+
+          <div id="formCamBox" class="cam-box hidden">
+            <div class="cam-stage"><video id="formVideo" autoplay playsinline muted></video></div>
+            <div style="display:flex;justify-content:space-between;padding:10px;">
+              <button id="btnFormSwitch" class="btn btn-outline" type="button" style="min-height:38px;">Flip</button>
+              <button id="btnFormSnap" class="btn btn-grad" type="button" style="min-height:38px;">Take Photo</button>
+              <button id="btnFormCancel" class="btn btn-outline" type="button" style="min-height:38px;">Close</button>
+            </div>
+          </div>
+
+          <div id="formPreviewBox" class="hidden" style="margin-top:8px;display:flex;gap:12px;align-items:center;padding:10px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;">
+            <img id="formPreviewImg" alt="Life Certificate Preview" style="width:72px;height:84px;object-fit:cover;border-radius:8px;" />
+            <div style="font-size:12px;">
+              <strong style="color:#15803d;">Photo Ready</strong>
+              <div style="margin-top:6px;">
+                <button id="btnFormClear" class="btn btn-outline" type="button" style="min-height:34px;font-size:12px;">Remove</button>
+              </div>
+            </div>
+          </div>
+          <div id="existingFormLink" class="hidden" style="margin-top:6px;font-size:12px;color:#475569;"></div>
+        </div>
+
+        <!-- BENEFICIARY KYC DATA — 8-STEP FACE RD & EAR AUTHENTICATION -->
+        <div>
+          <div style="font-size:13px;font-weight:700;">Beneficiary KYC Data (Face RD &amp; Ear Authentication)</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:8px;">Place face inside the outline frame, pass all 8 ticks, then tap Capture</div>
+          <button id="btnStartKyc" class="btn btn-grad" type="button" style="width:100%;">Start Face RD Authentication</button>
+
+          <div id="kycCamBox" class="cam-box hidden">
+            <div style="padding:8px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #1e293b;gap:8px;">
+              <span id="kycInstruction" style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Loading Face Landmarker...</span>
+              <div style="display:flex;gap:6px;flex-shrink:0;">
+                <button id="btnKycFlip" class="btn btn-outline" type="button" style="min-height:32px;padding:0 10px;font-size:12px;">Flip</button>
+                <button id="btnKycClose" class="btn btn-outline" type="button" style="min-height:32px;padding:0 10px;font-size:12px;">Close</button>
+              </div>
+            </div>
+
+            <div class="cam-stage">
+              <video id="kycVideo" autoplay playsinline muted class="mirror"></video>
+              <canvas id="kycCanvas" class="mirror"></canvas>
+
+              <!-- FACE & EARS OUTLINE FRAME OVERLAY -->
+              <svg id="faceOutlineSvg" class="face-outline-svg" viewBox="0 0 300 400" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                <defs>
+                  <mask id="faceCutoutMask">
+                    <rect x="0" y="0" width="300" height="400" fill="white" />
+                    <!-- Head + Ears Silhouette Cutout -->
+                    <path d="M150 58 C196 58 226 96 228 148 C240 150 245 168 242 186 C239 202 232 208 225 206 C217 248 188 286 150 286 C112 286 83 248 75 206 C68 208 61 202 58 186 C55 168 60 150 72 148 C74 96 104 58 150 58 Z" fill="black" />
+                  </mask>
+                </defs>
+                <!-- Subtle dark surround -->
+                <rect x="0" y="0" width="300" height="400" fill="rgba(2, 6, 23, 0.48)" mask="url(#faceCutoutMask)" />
+
+                <!-- Corner Viewfinder Brackets -->
+                <g id="frameBrackets" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round">
+                  <path d="M36 74 L36 46 L64 46" />
+                  <path d="M264 74 L264 46 L236 46" />
+                  <path d="M36 276 L36 304 L64 304" />
+                  <path d="M264 276 L264 304 L236 304" />
+                </g>
+
+                <!-- Main Face + Ears Outline -->
+                <path id="faceHeadContour"
+                  d="M150 58 C196 58 226 96 228 148 C229 168 228 190 225 206 C217 248 188 286 150 286 C112 286 83 248 75 206 C72 190 71 168 72 148 C74 96 104 58 150 58 Z"
+                  fill="none" stroke="#38bdf8" stroke-width="2.8" stroke-dasharray="8 5" />
+
+                <!-- Left & Right Ear Outline Guides -->
+                <path id="earGuideLeft"
+                  d="M72 148 C59 149 55 168 58 186 C61 202 68 208 75 205"
+                  fill="none" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" />
+                <path id="earGuideRight"
+                  d="M228 148 C241 149 245 168 242 186 C239 202 232 208 225 205"
+                  fill="none" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" />
+
+                <!-- Eye & Mouth Alignment Crosshair Guides -->
+                <line x1="96" y1="158" x2="204" y2="158" stroke="rgba(148, 163, 184, 0.45)" stroke-width="1.2" stroke-dasharray="4 4" />
+                <line x1="122" y1="226" x2="178" y2="226" stroke="rgba(148, 163, 184, 0.45)" stroke-width="1.2" stroke-dasharray="4 4" />
+                <line x1="150" y1="120" x2="150" y2="246" stroke="rgba(148, 163, 184, 0.30)" stroke-width="1" stroke-dasharray="3 4" />
+
+                <!-- Shoulders Silhouette Hint -->
+                <path d="M62 356 C76 314 110 298 150 298 C190 298 224 314 238 356" fill="none" stroke="rgba(148, 163, 184, 0.45)" stroke-width="2" stroke-dasharray="6 6" />
+              </svg>
+
+              <div id="frameGuideBadge" class="frame-guide-pill">Place face inside outline frame</div>
+
+              <button id="btnKycSnapOverlay" type="button" class="snap-overlay-btn" disabled>
+                <span>●</span> <span id="snapOverlayLabel">Complete 8 Checks to Capture</span>
+              </button>
+            </div>
+
+            <div class="rd-steps-wrap">
+              <div class="rd-steps-hdr">
+                <span>Face RD &amp; Ear Liveness Steps</span>
+                <span id="rdPassCount" class="mono" style="color:#4ade80;">0 / 8 Passed</span>
+              </div>
+              <div class="rd-steps-grid">
+                <div id="stepFace" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>1. Face Frame</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepHead" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>2. Head Move</span></span><span class="rd-det">0°</span></div>
+                <div id="stepLEye" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>3. Left Eye</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepREye" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>4. Right Eye</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepLips" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>5. Lips Detected</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepBlink" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>6. Eye Blink</span></span><span class="rd-det">0/2</span></div>
+                <div id="stepLipMove" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>7. Lips Move</span></span><span class="rd-det">Wait</span></div>
+                <div id="stepEars" class="rd-step"><span class="rd-step-l"><span class="rd-tick"></span><span>8. Ear Capture</span></span><span class="rd-det">0/2</span></div>
+              </div>
+            </div>
+            <div style="padding:10px;display:flex;justify-content:space-between;align-items:center;gap:8px;background:#0f172a;border-top:1px solid #1e293b;">
+              <span id="captureHintText" style="font-size:11px;color:#94a3b8;">Keep face inside frame &amp; tap Capture</span>
+              <button id="btnKycCaptureNow" class="btn btn-grad" type="button" disabled style="min-height:42px;">Complete All 8 Steps</button>
+            </div>
+          </div>
+
+          <div id="kycPreviewBox" class="hidden" style="margin-top:8px;display:flex;gap:12px;align-items:flex-start;padding:10px;border:1px solid #bbf7d0;background:#f0fdf4;border-radius:12px;">
+            <img id="kycPreviewImg" alt="KYC Portrait" style="width:72px;height:86px;object-fit:cover;border-radius:8px;border:1px solid #86efac;" />
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:700;color:#15803d;">All 8 Face RD &amp; Ear Checks Passed</div>
+              <div style="font-size:11px;font-weight:700;color:#15803d;margin-top:2px;">✓ Face · ✓ Head · ✓ Left Eye · ✓ Right Eye · ✓ Lips · ✓ Blink · ✓ Lips Move · ✓ Ears (L &amp; R)</div>
+              <div id="earThumbsBox" class="ear-thumbs">
+                <div class="ear-thumb-card"><img id="earLeftPreviewImg" alt="Left Ear" /><span>Ear 1</span></div>
+                <div class="ear-thumb-card"><img id="earRightPreviewImg" alt="Right Ear" /><span>Ear 2</span></div>
+              </div>
+              <div id="kycSummaryText" class="mono" style="font-size:11px;color:#334155;margin-top:6px;word-break:break-word;"></div>
+              <button id="btnKycClear" class="btn btn-outline" type="button" style="min-height:32px;font-size:12px;margin-top:6px;">Clear &amp; Recapture</button>
+            </div>
+          </div>
+          <div id="existingKycBox" class="hidden mono" style="margin-top:6px;font-size:11px;color:#475569;padding:8px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;"></div>
+        </div>
+
+        <!-- AUTO-FILLED USER NAME & DATE (dd/mm/yyyy) -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:700;color:#475569;margin-bottom:4px;">Signed-in User Name</label>
+            <input id="fieldUserName" class="input" type="text" readonly style="background:#eff6ff;font-weight:700;" />
+          </div>
+          <div>
+            <label style="display:block;font-size:11.5px;font-weight:700;color:#475569;margin-bottom:4px;">Date (dd/mm/yyyy)</label>
+            <input id="fieldDate" class="input mono" type="text" readonly style="background:#eff6ff;font-weight:700;" />
+          </div>
+        </div>
+
+        <div id="saveGateNote" class="alert-warn hidden"></div>
+
+        <button id="btnSaveRecord" class="btn btn-grad" type="submit" style="width:100%;min-height:50px;font-size:14px;">
+          Save Verification to Sheet
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <script type="module">
+    import { FaceLandmarker, FilesetResolver } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs';
+
+    const VERIFICATION_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzUGinsPstE1N0pL4KK-9lpaoT-LjA7Yl7h8Zfjc6lZYnKG9umAq1xEPgEmkcxj986ZgA/exec";
+    const params = new URLSearchParams(window.location.search);
+
+    function inferGpFromFilename() {
+      const file = (window.location.pathname.split('/').pop() || '').replace(/\.(html?|php)$/i, '').toUpperCase();
+      const known = ['ALIHANDA','BHAGABANPUR','CHANCHAL','KALIGRAM','KHARBA','MAHANANDAPUR','MAKDAMPUR','MOTIHARPUR'];
+      return known.includes(file) ? file : '';
+    }
+
+    const OPERATOR = {
+      userName: (params.get('user') || '').trim() || 'Signed-in Operator',
+      gp: (params.get('gp') || inferGpFromFilename() || '').trim().toUpperCase(),
+      mobile: (params.get('mobile') || '').trim(),
+      role: (params.get('role') || 'User').trim()
     };
-    img.src = reader.result;
-  };
-  reader.readAsDataURL(file);
-};
 
-// ===== Document Camera =====
-window.openDocCamera = async function(bid) {
-  docTargetId = bid;
-  docCapturedDataUrl = "";
-  $("docPreviewImg").classList.add("hidden");
-  $("docVideo").classList.remove("hidden");
-  $("docGuide").classList.remove("hidden");
-  $("docCaptureBtn").classList.remove("hidden");
-  $("docFlipBtn").classList.remove("hidden");
-  $("docRetakeBtn").classList.add("hidden");
-  $("docConfirmBtn").classList.add("hidden");
-  $("docStatus").className = "status info show";
-  $("docStatus").textContent = "Align the signed Life Certificate Form inside the dashed border.";
-  $("docModal").classList.remove("hidden");
-  await startDocStream();
-};
+    const $ = (id) => document.getElementById(id);
+    const CACHE_KEY = 'wcd_cache_' + (OPERATOR.gp || 'ALL');
+    let allRecords = [];
+    let selectedRow = null;
+    let formPhotoBase64 = '';
+    let kycPhotoBase64 = '';
+    let kycSummaryStr = '';
+    let kycAllPassed = false;
 
-async function startDocStream() {
-  stopDocStream();
-  try {
-    docStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: docFacingMode, width: { ideal: 1600 }, height: { ideal: 1200 } },
-      audio: false
-    });
-    $("docVideo").srcObject = docStream;
-  } catch (err) {
-    $("docStatus").className = "status err show";
-    $("docStatus").textContent = "Camera unavailable: " + err.message;
-  }
-}
-function stopDocStream() {
-  if (docStream) { docStream.getTracks().forEach(t => t.stop()); docStream = null; }
-}
-window.flipDocCamera = async function() {
-  docFacingMode = docFacingMode === "environment" ? "user" : "environment";
-  await startDocStream();
-};
-window.captureDocFrame = function() {
-  const v = $("docVideo");
-  if (!v.videoWidth) return;
-  const c = $("docCanvas");
-  c.width = v.videoWidth;
-  c.height = v.videoHeight;
-  c.getContext("2d").drawImage(v, 0, 0, c.width, c.height);
-  docCapturedDataUrl = c.toDataURL("image/jpeg", 0.86);
-  $("docPreviewImg").src = docCapturedDataUrl;
-  $("docPreviewImg").classList.remove("hidden");
-  $("docVideo").classList.add("hidden");
-  $("docGuide").classList.add("hidden");
-  $("docCaptureBtn").classList.add("hidden");
-  $("docFlipBtn").classList.add("hidden");
-  $("docRetakeBtn").classList.remove("hidden");
-  $("docConfirmBtn").classList.remove("hidden");
-  $("docStatus").textContent = "Review captured photo or retake.";
-};
-window.retakeDocFrame = function() {
-  docCapturedDataUrl = "";
-  $("docPreviewImg").classList.add("hidden");
-  $("docVideo").classList.remove("hidden");
-  $("docGuide").classList.remove("hidden");
-  $("docCaptureBtn").classList.remove("hidden");
-  $("docFlipBtn").classList.remove("hidden");
-  $("docRetakeBtn").classList.add("hidden");
-  $("docConfirmBtn").classList.add("hidden");
-};
-window.confirmDocCapture = function() {
-  if (!docTargetId || !docCapturedDataUrl) return;
-  draftState[docTargetId].lifeCertBase64 = docCapturedDataUrl;
-  const safeDomId = docTargetId.replace(/[^a-zA-Z0-9_-]/g, "_");
-  $(`docInfo_${safeDomId}`).innerHTML = `<img src="${docCapturedDataUrl}" class="preview-thumb" alt="Captured Form" />`;
-  closeDocCamera();
-};
-window.closeDocCamera = function() {
-  stopDocStream();
-  $("docModal").classList.add("hidden");
-};
+    let formStream = null;
+    let formFacing = 'environment';
+    let kycStream = null;
+    let kycFacing = 'user';
+    let landmarker = null;
+    let kycRaf = null;
+    let lastVideoTime = -1;
 
-// ===== Liveness KYC Camera =====
-function initKycState() {
-  kycState = {
-    faceDetected: false,
-    eyesDetected: false,
-    blinksCount: 0,
-    isEyeClosed: false,
-    leftEarDetected: false,
-    rightEarDetected: false,
-    minYaw: 0,
-    maxYaw: 0,
-    minPitch: 0,
-    maxPitch: 0,
-    prevNose: null,
-    motionAcc: 0,
-    frames: 0,
-    snapshotBase64: ""
-  };
-  $("mFace").className = "metric-cell";
-  $("mFace").querySelector("strong").textContent = "Waiting…";
-  $("mEyes").className = "metric-cell";
-  $("mEyesVal").textContent = "0 / 2 blinks";
-  $("mEars").className = "metric-cell";
-  $("mEarsVal").textContent = "Turn slightly L/R";
-  $("mMotion").className = "metric-cell";
-  $("mMotionVal").textContent = "0.0";
-  $("kycConfirmBtn").disabled = true;
-}
-
-window.openKycModal = async function(bid) {
-  kycTargetId = bid;
-  initKycState();
-  $("kycPrompt").textContent = "Starting camera & MediaPipe FaceLandmarker…";
-  $("kycModal").classList.remove("hidden");
-
-  try {
-    kycStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user", width: { ideal: 960 }, height: { ideal: 720 } },
-      audio: false
-    });
-    const video = $("kycVideo");
-    video.srcObject = kycStream;
-    await video.play();
-
-    if (!kycLandmarker && window.__MP_Vision) {
-      const { FaceLandmarker, FilesetResolver } = window.__MP_Vision;
-      const vision = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm"
-      );
-      kycLandmarker = await FaceLandmarker.createFromOptions(vision, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-          delegate: "GPU"
-        },
-        runningMode: "VIDEO",
-        numFaces: 1,
-        outputFaceBlendshapes: true,
-        outputFacialTransformationMatrixes: true
-      });
-    }
-
-    $("kycPrompt").textContent = "Look at camera, blink twice, and turn slightly left & right.";
-    runKycLoop();
-  } catch (err) {
-    $("kycPrompt").textContent = "Camera / Liveness error: " + err.message;
-  }
-};
-
-window.resetKycSession = function() {
-  initKycState();
-  $("kycPrompt").textContent = "Look at camera, blink twice, and turn slightly left & right.";
-};
-
-function dist2D(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
-function computeEAR(lm, idx) {
-  const v1 = dist2D(lm[idx[1]], lm[idx[5]]);
-  const v2 = dist2D(lm[idx[2]], lm[idx[4]]);
-  const h = dist2D(lm[idx[0]], lm[idx[3]]);
-  return h > 0 ? (v1 + v2) / (2 * h) : 0.3;
-}
-
-function runKycLoop() {
-  const video = $("kycVideo");
-  const canvas = $("kycOverlay");
-  if (!kycStream || !video.videoWidth) {
-    kycRaf = requestAnimationFrame(runKycLoop);
-    return;
-  }
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
-  const ctx = canvas.getContext("2d");
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  if (kycLandmarker) {
-    const res = kycLandmarker.detectForVideo(video, performance.now());
-    if (res.faceLandmarks && res.faceLandmarks.length > 0) {
-      const lm = res.faceLandmarks[0];
-      kycState.faceDetected = true;
-      kycState.frames++;
-
-      ctx.fillStyle = "#38bdf8";
-      [33, 133, 362, 263, 468, 473, 234, 454].forEach(i => {
-        if (lm[i]) {
-          ctx.beginPath();
-          ctx.arc(lm[i].x * canvas.width, lm[i].y * canvas.height, 4, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      });
-
-      if (lm[33] && lm[133] && lm[362] && lm[263]) kycState.eyesDetected = true;
-
-      let blinkScore = 0;
-      if (res.faceBlendshapes && res.faceBlendshapes[0]) {
-        const cats = res.faceBlendshapes[0].categories;
-        const bL = cats.find(c => c.categoryName === "eyeBlinkLeft")?.score || 0;
-        const bR = cats.find(c => c.categoryName === "eyeBlinkRight")?.score || 0;
-        blinkScore = (bL + bR) / 2;
+    function updateSaveGate() {
+      if (!selectedRow) return;
+      const remarks = $('remarksSelect').value;
+      const existingAlive = String(selectedRow.beneficiaryKycData || '').includes('ALIVE_VERIFIED');
+      const faceRdPassed = kycSummaryStr ? kycAllPassed : existingAlive;
+      const lifeCertReady = Boolean(formPhotoBase64 || selectedRow.lifeCertificateForm);
+      const blocked = remarks === 'Alive' && (!faceRdPassed || !lifeCertReady);
+      $('btnSaveRecord').disabled = blocked;
+      if (blocked) {
+        $('saveGateNote').classList.remove('hidden');
+        $('saveGateNote').textContent = !faceRdPassed
+          ? 'Complete all 8 Face RD & Ear checks (Face, Head, Left Eye, Right Eye, Lips, Blink, Lips Move, Ear Capture) and tap Capture to enable Save.'
+          : 'Capture or upload the Life Certificate Form photo to enable Save.';
+        $('btnSaveRecord').textContent = 'Complete Face RD & Form to Save';
       } else {
-        const earL = computeEAR(lm, [33, 160, 158, 133, 153, 144]);
-        const earR = computeEAR(lm, [362, 385, 387, 263, 373, 380]);
-        blinkScore = ((earL + earR) / 2) < 0.21 ? 0.8 : 0.1;
+        $('saveGateNote').classList.add('hidden');
+        $('btnSaveRecord').textContent = 'Save Verification to Sheet';
       }
-
-      if (blinkScore > 0.46 && !kycState.isEyeClosed) kycState.isEyeClosed = true;
-      else if (blinkScore < 0.26 && kycState.isEyeClosed) {
-        kycState.isEyeClosed = false;
-        kycState.blinksCount++;
-      }
-
-      const nose = lm[1];
-      const leftTragus = lm[234];
-      const rightTragus = lm[454];
-      const midX = (leftTragus.x + rightTragus.x) / 2;
-      const faceW = Math.max(0.05, Math.abs(rightTragus.x - leftTragus.x));
-      const yawDeg = ((nose.x - midX) / faceW) * 60;
-      const pitchDeg = ((nose.y - ((lm[10].y + lm[152].y) / 2)) / faceW) * 45;
-
-      kycState.minYaw = Math.min(kycState.minYaw, yawDeg);
-      kycState.maxYaw = Math.max(kycState.maxYaw, yawDeg);
-      kycState.minPitch = Math.min(kycState.minPitch, pitchDeg);
-      kycState.maxPitch = Math.max(kycState.maxPitch, pitchDeg);
-
-      if (leftTragus.x > 0.04 && leftTragus.x < 0.96 && yawDeg >= 5) kycState.leftEarDetected = true;
-      if (rightTragus.x > 0.04 && rightTragus.x < 0.96 && yawDeg <= -5) kycState.rightEarDetected = true;
-
-      if (kycState.prevNose) {
-        const delta = Math.hypot(nose.x - kycState.prevNose.x, nose.y - kycState.prevNose.y) * 100;
-        if (delta > 0.12) kycState.motionAcc = Math.min(25, kycState.motionAcc + delta * 0.25);
-      }
-      kycState.prevNose = { x: nose.x, y: nose.y };
-
-      if (!kycState.snapshotBase64 && Math.abs(yawDeg) < 8 && kycState.frames > 12) {
-        const snap = document.createElement("canvas");
-        snap.width = video.videoWidth;
-        snap.height = video.videoHeight;
-        snap.getContext("2d").drawImage(video, 0, 0);
-        kycState.snapshotBase64 = snap.toDataURL("image/jpeg", 0.8);
-      }
-
-      $("mFace").className = "metric-cell pass";
-      $("mFace").querySelector("strong").textContent = "Locked";
-
-      $("mEyesVal").textContent = `${kycState.blinksCount} / 2 blinks`;
-      if (kycState.eyesDetected && kycState.blinksCount >= 2) $("mEyes").className = "metric-cell pass";
-
-      $("mEarsVal").textContent = `L:${kycState.leftEarDetected ? "OK" : "—"} · R:${kycState.rightEarDetected ? "OK" : "—"}`;
-      if (kycState.leftEarDetected && kycState.rightEarDetected) $("mEars").className = "metric-cell pass";
-
-      $("mMotionVal").textContent = kycState.motionAcc.toFixed(1);
-      if (kycState.motionAcc >= 2.5) $("mMotion").className = "metric-cell pass";
-
-      const passed = kycState.faceDetected &&
-        kycState.eyesDetected &&
-        kycState.blinksCount >= 2 &&
-        kycState.leftEarDetected &&
-        kycState.rightEarDetected &&
-        kycState.motionAcc >= 2.5;
-
-      $("kycConfirmBtn").disabled = !passed;
-      if (passed) {
-        $("kycPrompt").textContent = "Liveness verified! Tap 'Complete & Attach KYC' below.";
-      }
-    } else {
-      $("mFace").className = "metric-cell";
-      $("mFace").querySelector("strong").textContent = "No face in frame";
     }
-  }
-  kycRaf = requestAnimationFrame(runKycLoop);
-}
 
-window.confirmKycCapture = function() {
-  if (!kycTargetId || !kycState) return;
-  const payload = {
-    status: "ALIVE_VERIFIED",
-    faceDetected: kycState.faceDetected,
-    eyesDetected: kycState.eyesDetected,
-    blinksCount: kycState.blinksCount,
-    leftEarDetected: kycState.leftEarDetected,
-    rightEarDetected: kycState.rightEarDetected,
-    earsDetectedCount: (kycState.leftEarDetected ? 1 : 0) + (kycState.rightEarDetected ? 1 : 0),
-    faceMotionDetected: kycState.motionAcc >= 2.5,
-    motionMagnitude: Number(kycState.motionAcc.toFixed(2)),
-    headYawRangeDeg: Math.round(kycState.maxYaw - kycState.minYaw),
-    headPitchRangeDeg: Math.round(kycState.maxPitch - kycState.minPitch),
-    livenessConfidence: 98,
-    verifiedBy: session ? session.User : "Unknown",
-    capturedAt: new Date().toISOString()
-  };
-  draftState[kycTargetId].kycData = JSON.stringify(payload);
-  draftState[kycTargetId].kycSnapshotBase64 = kycState.snapshotBase64 || "";
-  const safeDomId = kycTargetId.replace(/[^a-zA-Z0-9_-]/g, "_");
-  $(`kycInfo_${safeDomId}`).innerHTML = formatKycPreview(draftState[kycTargetId].kycData);
-  closeKycModal();
-};
-
-window.closeKycModal = function() {
-  cancelAnimationFrame(kycRaf);
-  if (kycStream) { kycStream.getTracks().forEach(t => t.stop()); kycStream = null; }
-  $("kycModal").classList.add("hidden");
-};
-
-// ===== Save Row via Hardcoded GAS Web App URL (text/plain POST avoids CORS preflight) =====
-window.saveRow = async function(bid) {
-  if (GAS_WEBAPP_URL.includes("YOUR_DEPLOYMENT_ID_HERE")) {
-    setStatus("Set your deployed Google Apps Script Web App URL in GAS_WEBAPP_URL.", "err");
-    return;
-  }
-  const d = draftState[bid];
-  if (!d) return;
-  if (!d.remarks) {
-    setStatus("Please select Remarks (Alive, Death, Absent, Permanently Shifted, Not Found).", "err");
-    return;
-  }
-
-  const safeDomId = bid.replace(/[^a-zA-Z0-9_-]/g, "_");
-  const btn = $(`saveBtn_${safeDomId}`);
-  btn.classList.add("loading");
-  btn.disabled = true;
-
-  try {
-    const res = await fetch(GAS_WEBAPP_URL, {
-      method: "POST",
-      redirect: "follow",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "save",
-        beneficiaryId: bid,
-        rowNumber: d.rowNumber,
-        lockedGP: lockedGP,
-        remarks: d.remarks,
-        lifeCertBase64: d.lifeCertBase64,
-        existingLifeCertUrl: d.existingLifeCertUrl,
-        kycData: d.kycData,
-        kycSnapshotBase64: d.kycSnapshotBase64,
-        userName: session ? session.User : "Unknown"
-      })
-    });
-
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    if (!data.ok) throw new Error(data.error || "Save failed");
-
-    if (data.updated) {
-      d.existingLifeCertUrl = data.updated["Life Certificate Form"] || d.existingLifeCertUrl;
-      d.lifeCertBase64 = "";
-      d.kycSnapshotBase64 = "";
-      if (d.existingLifeCertUrl) {
-        $(`docInfo_${safeDomId}`).innerHTML = `<a href="${esc(d.existingLifeCertUrl)}" target="_blank" rel="noopener">Saved in Drive — Open Life Certificate</a>`;
-      }
-      $(`saveMsg_${safeDomId}`).innerHTML = `Saved by <strong>${esc(data.updated["User Name"])}</strong> · ${esc(data.updated["Date"])} (${esc(data.updated["TimeStamp"])})`;
-      setStatus(`Saved verification record for ${bid}.`, "ok");
+    function formatDDMMYYYY(d = new Date()) {
+      return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + d.getFullYear();
     }
-  } catch (err) {
-    setStatus("Save failed: " + err.message, "err");
-  } finally {
-    btn.classList.remove("loading");
-    btn.disabled = false;
-  }
-};
+    function formatTS(d = new Date()) {
+      return formatDDMMYYYY(d) + ' ' + String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0') + ':' + String(d.getSeconds()).padStart(2,'0');
+    }
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
 
-// ---------- Wire ----------
-$("searchValue").addEventListener("input", () => { $("searchValue").value = $("searchValue").value.replace(/['"`]/g, ""); });
-$("searchValue").addEventListener("input", scheduleSearch);
-$("searchValue").addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(debounceTimer); search(); } });
-$("searchBtn").addEventListener("click", () => { clearTimeout(debounceTimer); search(); });
-$("searchField").addEventListener("change", () => {
-  const n = ["Beneficiary Id","Applicant Mobile No.","Aadhaar NO.","Bank Account No."].includes($("searchField").value);
-  $("searchValue").setAttribute("inputmode", n ? "numeric" : "text");
-  if ($("searchValue").value.trim()) { clearTimeout(debounceTimer); search(); }
-});
-$("logoutBtn").addEventListener("click", () => {
-  sessionStorage.removeItem(SESSION_KEY);
-  window.location.href = "index.htm";
-});
-$("adminBtn").addEventListener("click", () => { window.location.href = "admin.html"; });
+    $('operatorLine').textContent = OPERATOR.userName + ' · GP: ' + (OPERATOR.gp || 'ALL');
+    $('fieldUserName').value = OPERATOR.userName;
+    $('fieldDate').value = formatDDMMYYYY();
 
-// ---------- Boot (matches auth_session_v1 template) ----------
-(function boot() {
-  let s = null;
-  try { s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "null"); } catch {}
-  if (!s || !s.User) { window.location.href = "index.htm"; return; }
-  if ((s.Permission || "").toLowerCase() === "pending") {
-    sessionStorage.removeItem(SESSION_KEY);
-    window.location.href = "index.htm";
-    return;
-  }
-  session = s;
-  lockedGP = s["GP/WARD"] || "";
+    function showAlert(msg, isErr) {
+      const el = $('globalAlert');
+      el.textContent = msg;
+      el.className = 'alert ' + (isErr ? 'alert-err' : 'alert-ok');
+      el.classList.remove('hidden');
+      if (!isErr) setTimeout(() => el.classList.add('hidden'), 4500);
+    }
 
-  $("whoami").textContent = `${s.User} (${s.Role || "user"})`;
+    // ---- ONE-TIME CAMERA PERMISSION CHECK ----
+    async function checkCamPerm() {
+      try {
+        if (navigator.permissions && navigator.permissions.query) {
+          const st = await navigator.permissions.query({ name: 'camera' });
+          if (st.state === 'granted') { $('camPermBar').classList.add('hidden'); return; }
+          if (st.state === 'denied' && window.self !== window.top) {
+            $('camPermTitle').textContent = 'Camera Blocked by Parent Frame';
+            $('camPermDesc').textContent = 'Tap Open Full Screen once so your browser permits camera access.';
+            $('btnOpenTopWin').href = window.location.href;
+            $('btnOpenTopWin').classList.remove('hidden');
+          }
+        }
+        $('camPermBar').classList.remove('hidden');
+      } catch {
+        $('camPermBar').classList.remove('hidden');
+      }
+    }
 
-  if ((s.Role || "").toLowerCase() === "admin") {
-    $("adminBtn").classList.remove("hidden");
-    lockedGP = "";
-    $("gpLocked").textContent = "All GPs (admin)";
-  } else {
-    $("gpLocked").textContent = lockedGP || "(not assigned)";
-  }
-})();
-</script>
+    $('btnPermitCamOnce').onclick = async () => {
+      try {
+        const s = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+        s.getTracks().forEach(t => t.stop());
+        $('camPermBar').classList.add('hidden');
+        showAlert('Camera permission granted for all verifications.', false);
+      } catch (e) {
+        if (window.self !== window.top) {
+          $('camPermTitle').textContent = 'Camera Blocked Inside Frame';
+          $('camPermDesc').textContent = 'Tap Open Full Screen to allow camera.';
+          $('btnOpenTopWin').href = window.location.href;
+          $('btnOpenTopWin').classList.remove('hidden');
+        }
+        showAlert('Camera permission denied: ' + e.message, true);
+      }
+    };
+
+    // ---- FAST CACHE + SHEET SYNC ----
+    function readLocalCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch { return null; }
+    }
+    function writeLocalCache(rows) {
+      const syncedAt = formatTS();
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify({ rows, syncedAt })); } catch {}
+      $('lastSyncMeta').textContent = 'Synced: ' + syncedAt;
+    }
+
+    async function apiPost(payload) {
+      const res = await fetch(VERIFICATION_SCRIPT_URL, {
+        method: 'POST',
+        redirect: 'follow',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+
+    async function syncFromSheet(forceRefresh = false) {
+      $('btnSync').textContent = 'Syncing...';
+      $('btnSync').disabled = true;
+      try {
+        const res = await apiPost({
+          action: 'getBeneficiaries',
+          gp: OPERATOR.gp,
+          role: OPERATOR.role,
+          userName: OPERATOR.userName,
+          mobileNo: OPERATOR.mobile,
+          forceRefresh
+        });
+        if (!res.ok) {
+          showAlert(res.error || 'Failed to load GP data.', true);
+          return;
+        }
+        allRecords = res.beneficiaries || [];
+        writeLocalCache(allRecords);
+        updateStats();
+        renderList();
+      } catch (err) {
+        showAlert(err.message || 'Network error syncing Data sheet.', true);
+      } finally {
+        $('btnSync').textContent = 'Sync Sheet';
+        $('btnSync').disabled = false;
+      }
+    }
+
+    function initData() {
+      const cached = readLocalCache();
+      if (cached && Array.isArray(cached.rows) && cached.rows.length > 0) {
+        allRecords = cached.rows;
+        $('lastSyncMeta').textContent = 'Cached: ' + (cached.syncedAt || '');
+        updateStats();
+        renderList();
+      } else {
+        syncFromSheet(false);
+      }
+    }
+
+    function updateStats() {
+      const total = allRecords.length;
+      const alive = allRecords.filter(r => r.remarks === 'Alive').length;
+      const pending = allRecords.filter(r => !r.remarks).length;
+      const other = total - alive - pending;
+      $('statTotal').textContent = total;
+      $('statAlive').textContent = alive;
+      $('statPending').textContent = pending;
+      $('statOther').textContent = other;
+    }
+
+    function renderList() {
+      const q = $('searchInput').value.trim().toLowerCase();
+      const st = $('statusFilter').value;
+
+      const filtered = allRecords.filter(r => {
+        if (st === 'PENDING' && r.remarks) return false;
+        if (st !== 'ALL' && st !== 'PENDING' && r.remarks !== st) return false;
+        if (q) {
+          const hay = (r.beneficiaryId + ' ' + r.applicantName + ' ' + r.applicantMobileNo + ' ' + r.aadhaarNo + ' ' + r.villageTownCity).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      $('countMeta').textContent = filtered.length + ' of ' + allRecords.length + ' (' + (OPERATOR.gp || 'ALL') + ')';
+      const list = $('beneficiaryList');
+      list.innerHTML = '';
+
+      if (!filtered.length) {
+        list.innerHTML = '<div class="card" style="text-align:center;color:#64748b;font-size:13px;">No matching beneficiaries found for ' + escapeHtml(OPERATOR.gp || 'this GP') + '.</div>';
+        return;
+      }
+
+      filtered.forEach(r => {
+        const card = document.createElement('div');
+        card.className = 'ben-card';
+        const statusColor = r.remarks === 'Alive' ? '#16a34a' : r.remarks === 'Death' ? '#dc2626' : r.remarks ? '#d97706' : '#64748b';
+
+        const info = document.createElement('div');
+        info.style.minWidth = '0';
+        info.style.flex = '1';
+        info.innerHTML =
+          '<div style="font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(r.applicantName) + '</div>' +
+          '<div class="mono" style="font-size:11.5px;color:#475569;margin-top:2px;">ID: ' + escapeHtml(r.beneficiaryId) + ' · ' + escapeHtml(r.villageTownCity || r.gpWard) + '</div>' +
+          '<div style="font-size:11.5px;font-weight:700;color:' + statusColor + ';margin-top:3px;">' + escapeHtml(r.remarks || 'Pending Verification') + (r.date ? ' · ' + escapeHtml(r.date) : '') + '</div>';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'edit-pencil-btn';
+        editBtn.title = 'Edit Beneficiary';
+        editBtn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>';
+        editBtn.onclick = () => openEditView(r);
+
+        card.appendChild(info);
+        card.appendChild(editBtn);
+        list.appendChild(card);
+      });
+    }
+
+    function openEditView(r) {
+      selectedRow = r;
+      formPhotoBase64 = '';
+      kycPhotoBase64 = '';
+      kycSummaryStr = '';
+      kycAllPassed = false;
+      $('formPreviewBox').classList.add('hidden');
+      $('kycPreviewBox').classList.add('hidden');
+      $('formCamFallback').classList.add('hidden');
+      stopFormCam();
+      stopKycCam();
+
+      $('listView').classList.add('hidden');
+      $('editView').classList.remove('hidden');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      $('detName').textContent = r.applicantName;
+      $('detSub').textContent = 'ID: ' + r.beneficiaryId + ' · Mobile: ' + r.applicantMobileNo;
+      $('detStatusText').textContent = r.remarks || 'Pending';
+
+      const pairs = [
+        ['Gender / Age', r.applicantGender + ' · ' + r.age + ' yrs'],
+        ['DOB', r.applicantDob],
+        ['Caste', r.caste],
+        ['Aadhaar NO.', r.aadhaarNo],
+        ['Bank IFSC', r.bankIfsc],
+        ['Bank Account', r.bankAccountNo],
+        ['Ration Card', r.rationCardNo],
+        ['EPIC No.', r.epicNo],
+        ["Father's Name", r.fatherName],
+        ["Mother's Name", r.motherName],
+        ['Spouse Name', r.spouseName],
+        ['GP / WARD', r.gpWard],
+        ['Village / Town', r.villageTownCity],
+        ['House Premise', r.housePremiseNo],
+        ['Post Office', r.postOffice],
+        ['PIN Code', r.pinCode],
+        ['Duare Sarkar', r.duareSarkarPhase],
+        ['Payment Status', r.paymentStatus],
+        ['Type', r.type],
+      ];
+
+      $('detFields').innerHTML = pairs.map(([k, v]) =>
+        '<div><div class="kv-k">' + escapeHtml(k) + '</div><div class="kv-v">' + escapeHtml(v || '—') + '</div></div>'
+      ).join('');
+
+      $('remarksSelect').value = r.remarks || '';
+      $('fieldUserName').value = OPERATOR.userName;
+      $('fieldDate').value = formatDDMMYYYY();
+
+      if (r.lifeCertificateForm) {
+        $('existingFormLink').classList.remove('hidden');
+        $('existingFormLink').innerHTML = 'Saved Form: <a href="' + escapeHtml(r.lifeCertificateForm) + '" target="_blank" rel="noopener">View Saved File</a>';
+      } else {
+        $('existingFormLink').classList.add('hidden');
+      }
+
+      if (r.beneficiaryKycData) {
+        $('existingKycBox').classList.remove('hidden');
+        $('existingKycBox').textContent = 'Saved KYC: ' + r.beneficiaryKycData;
+      } else {
+        $('existingKycBox').classList.add('hidden');
+      }
+      updateSaveGate();
+    }
+
+    $('btnBackToList').onclick = () => {
+      stopFormCam();
+      stopKycCam();
+      $('editView').classList.add('hidden');
+      $('listView').classList.remove('hidden');
+    };
+
+    // ---- LIFE CERTIFICATE CAMERA & UPLOAD ----
+    function stopFormCam() {
+      if (formStream) { formStream.getTracks().forEach(t => t.stop()); formStream = null; }
+      $('formCamBox').classList.add('hidden');
+    }
+    async function startFormCam(mode) {
+      stopFormCam();
+      $('formCamFallback').classList.add('hidden');
+      try {
+        formStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: mode }, width: { ideal: 1280 } }, audio: false });
+        $('camPermBar').classList.add('hidden');
+        $('formCamBox').classList.remove('hidden');
+        $('formVideo').srcObject = formStream;
+        await $('formVideo').play();
+      } catch (e) {
+        $('formCamErrText').textContent = 'Camera denied (' + e.message + '). Use Phone Native Camera below:';
+        $('formCamFallback').classList.remove('hidden');
+      }
+    }
+    function compressToJpeg(src, maxW = 1280) {
+      const sw = src.videoWidth || src.naturalWidth;
+      const sh = src.videoHeight || src.naturalHeight;
+      const scale = sw > maxW ? maxW / sw : 1;
+      const c = document.createElement('canvas');
+      c.width = Math.round(sw * scale);
+      c.height = Math.round(sh * scale);
+      c.getContext('2d').drawImage(src, 0, 0, c.width, c.height);
+      return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    $('btnFormCam').onclick = () => startFormCam(formFacing);
+    $('btnFormSwitch').onclick = () => { formFacing = formFacing === 'environment' ? 'user' : 'environment'; startFormCam(formFacing); };
+    $('btnFormCancel').onclick = stopFormCam;
+    $('btnFormSnap').onclick = () => {
+      formPhotoBase64 = compressToJpeg($('formVideo'));
+      $('formPreviewImg').src = formPhotoBase64;
+      $('formPreviewBox').classList.remove('hidden');
+      stopFormCam();
+      updateSaveGate();
+    };
+    $('btnFormUpload').onclick = () => $('formFileInput').click();
+    $('btnFormNativeCam').onclick = () => $('formNativeCamInput').click();
+    const handleFile = (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          formPhotoBase64 = compressToJpeg(img);
+          $('formPreviewImg').src = formPhotoBase64;
+          $('formPreviewBox').classList.remove('hidden');
+          $('formCamFallback').classList.add('hidden');
+          updateSaveGate();
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    };
+    $('formFileInput').onchange = handleFile;
+    $('formNativeCamInput').onchange = handleFile;
+    $('btnFormClear').onclick = () => { formPhotoBase64 = ''; $('formPreviewBox').classList.add('hidden'); updateSaveGate(); };
+
+    // ---- 8-STEP FACE RD & EAR AUTHENTICATION MODULE (OUTLINE FRAME + TAP TO CAPTURE) ----
+    const LEFT_EYE = [33, 160, 158, 133, 153, 144];
+    const RIGHT_EYE = [362, 385, 387, 263, 373, 380];
+    let track = {};
+
+    function setStepBadge(elId, passed, detail) {
+      const el = $(elId);
+      if (!el) return;
+      el.classList.toggle('pass', Boolean(passed));
+      const tick = el.querySelector('.rd-tick');
+      if (tick) tick.textContent = passed ? '✓' : '';
+      const det = el.querySelector('.rd-det');
+      if (det) det.textContent = detail;
+    }
+
+    function setOutlineVisual(state) {
+      // state: 'idle' | 'aligned' | 'ready'
+      const color = state === 'ready' ? '#22c55e' : state === 'aligned' ? '#facc15' : '#38bdf8';
+      const head = $('faceHeadContour');
+      const brackets = $('frameBrackets');
+      const earL = $('earGuideLeft');
+      const earR = $('earGuideRight');
+      if (head) head.setAttribute('stroke', color);
+      if (brackets) brackets.setAttribute('stroke', color);
+      if (earL) earL.setAttribute('stroke', track.ear1Ok ? '#22c55e' : color);
+      if (earR) earR.setAttribute('stroke', track.ear2Ok ? '#22c55e' : color);
+    }
+
+    function updateRdChecklist(yawDeg, marVal) {
+      const blinkOk = track.blinks >= 2;
+      const earsCount = (track.ear1Ok ? 1 : 0) + (track.ear2Ok ? 1 : 0);
+      const earsOk = earsCount === 2;
+
+      setStepBadge('stepFace', track.faceOk, track.faceOk ? 'TICK' : 'Wait');
+      setStepBadge('stepHead', track.headOk, track.headOk ? 'TICK' : Math.round(yawDeg) + '°');
+      setStepBadge('stepLEye', track.lEyeOk, track.lEyeOk ? 'TICK' : 'Wait');
+      setStepBadge('stepREye', track.rEyeOk, track.rEyeOk ? 'TICK' : 'Wait');
+      setStepBadge('stepLips', track.lipsOk, track.lipsOk ? 'TICK' : 'Wait');
+      setStepBadge('stepBlink', blinkOk, blinkOk ? 'TICK (' + track.blinks + '/2)' : (track.wasClosed ? 'Blink...' : track.blinks + '/2'));
+      setStepBadge('stepLipMove', track.lipOk, track.lipOk ? 'TICK' : 'MAR ' + marVal.toFixed(2));
+      setStepBadge('stepEars', earsOk, earsOk ? 'TICK (2/2)' : earsCount + '/2');
+
+      const count = [track.faceOk, track.headOk, track.lEyeOk, track.rEyeOk, track.lipsOk, blinkOk, track.lipOk, earsOk].filter(Boolean).length;
+      $('rdPassCount').textContent = count + ' / 8 Passed';
+      const allOk = count === 8;
+
+      $('btnKycCaptureNow').disabled = !allOk;
+      $('btnKycCaptureNow').className = allOk ? 'btn btn-emerald' : 'btn btn-grad';
+      $('btnKycCaptureNow').textContent = allOk ? 'Tap to Capture KYC & Ears' : 'Complete All 8 Steps';
+
+      $('btnKycSnapOverlay').disabled = !allOk;
+      $('btnKycSnapOverlay').classList.toggle('ready', allOk);
+      $('snapOverlayLabel').textContent = allOk ? 'TAP TO CAPTURE DETAILS' : ('Checks: ' + count + '/8 Passed');
+
+      return allOk;
+    }
+
+    function resetTrack() {
+      track = {
+        faceOk: false,
+        faceInFrameNow: false,
+        headOk: false,
+        lEyeOk: false,
+        rEyeOk: false,
+        lipsOk: false,
+        wasClosed: false,
+        closeAt: 0,
+        lastBlinkAt: 0,
+        baselineEar: 0,
+        blinks: 0,
+        lipOk: false,
+        minMar: 1,
+        maxMar: 0,
+        minYaw: 999,
+        maxYaw: -999,
+        lEar: 0,
+        rEar: 0,
+        ear1Ok: false,
+        ear2Ok: false,
+        bestEar1Yaw: -999,
+        bestEar2Yaw: 999,
+        ear1Img: '',
+        ear2Img: ''
+      };
+      setOutlineVisual('idle');
+      $('frameGuideBadge').className = 'frame-guide-pill';
+      $('frameGuideBadge').textContent = 'Place face inside outline frame';
+      updateRdChecklist(0, 0);
+    }
+
+    function dist(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+    function ear(lm, idx) {
+      return (dist(lm[idx[1]], lm[idx[5]]) + dist(lm[idx[2]], lm[idx[4]])) / Math.max(0.001, 2 * dist(lm[idx[0]], lm[idx[3]]));
+    }
+
+    function cropEarFromVideo(video, lm, earIdx, sideDir, facing) {
+      if (!video.videoWidth || !video.videoHeight) return '';
+      const pt = lm[earIdx];
+      const faceH = Math.max(0.18, Math.abs(lm[152].y - lm[10].y));
+      const sw = Math.round(video.videoWidth * Math.min(0.28, Math.max(0.12, faceH * 0.30)));
+      const sh = Math.round(video.videoHeight * Math.min(0.34, Math.max(0.15, faceH * 0.38)));
+      // Shift slightly outward from cheek edge so the full ear pinna sits inside the crop
+      const cx = pt.x * video.videoWidth + (sideDir * sw * 0.14);
+      const cy = pt.y * video.videoHeight;
+      const sx = Math.max(0, Math.min(video.videoWidth - sw, Math.round(cx - sw / 2)));
+      const sy = Math.max(0, Math.min(video.videoHeight - sh, Math.round(cy - sh / 2)));
+
+      const c = document.createElement('canvas');
+      c.width = 120;
+      c.height = 145;
+      const ctx = c.getContext('2d');
+      if (facing === 'user') {
+        ctx.translate(c.width, 0);
+        ctx.scale(-1, 1);
+      }
+      ctx.drawImage(video, sx, sy, sw, sh, 0, 0, c.width, c.height);
+      return c.toDataURL('image/jpeg', 0.8);
+    }
+
+    function stopKycCam() {
+      if (kycRaf) { cancelAnimationFrame(kycRaf); kycRaf = null; }
+      if (kycStream) { kycStream.getTracks().forEach(t => t.stop()); kycStream = null; }
+      $('kycCamBox').classList.add('hidden');
+    }
+
+    async function startKycCam(mode) {
+      stopKycCam();
+      resetTrack();
+      $('kycCamBox').classList.remove('hidden');
+      $('kycInstruction').textContent = 'Loading MediaPipe Face Landmarker...';
+      try {
+        if (!landmarker) {
+          const vision = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+          landmarker = await FaceLandmarker.createFromOptions(vision, {
+            baseOptions: {
+              modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
+              delegate: 'GPU'
+            },
+            runningMode: 'VIDEO',
+            numFaces: 1,
+            outputFaceBlendshapes: true
+          });
+        }
+        kycStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: mode }, width: { ideal: 960 } }, audio: false });
+        $('camPermBar').classList.add('hidden');
+        const video = $('kycVideo');
+        const canvas = $('kycCanvas');
+        video.className = mode === 'user' ? 'mirror' : '';
+        canvas.className = mode === 'user' ? 'mirror' : '';
+        video.srcObject = kycStream;
+        await video.play();
+        lastVideoTime = -1;
+        loopKyc();
+      } catch (e) {
+        $('kycInstruction').textContent = 'Camera denied: ' + e.message;
+        $('camPermBar').classList.remove('hidden');
+      }
+    }
+
+    function captureKycFrame() {
+      const video = $('kycVideo');
+      const allPassed = track.faceOk && track.headOk && track.lEyeOk && track.rEyeOk && track.lipsOk && track.blinks >= 2 && track.lipOk && track.ear1Ok && track.ear2Ok;
+      if (!video.videoWidth || !allPassed) return;
+
+      if (!track.faceInFrameNow) {
+        $('frameGuideBadge').className = 'frame-guide-pill aligned';
+        $('frameGuideBadge').textContent = 'Center face in frame before tapping Capture';
+        return;
+      }
+
+      const c = document.createElement('canvas');
+      c.width = video.videoWidth;
+      c.height = video.videoHeight;
+      const ctx = c.getContext('2d');
+      if (kycFacing === 'user') { ctx.translate(c.width, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(video, 0, 0, c.width, c.height);
+      kycPhotoBase64 = c.toDataURL('image/jpeg', 0.84);
+      kycAllPassed = true;
+
+      const yawSpan = track.maxYaw > -900 && track.minYaw < 900 ? Math.round(track.maxYaw - track.minYaw) : 0;
+      const marDelta = Math.max(0, track.maxMar - track.minMar);
+      kycSummaryStr = [
+        'STATUS: ALIVE_VERIFIED',
+        'Face: TICK',
+        'Head: TICK (Yaw ' + yawSpan + '°)',
+        'Left Eye: TICK (' + track.lEar.toFixed(2) + ')',
+        'Right Eye: TICK (' + track.rEar.toFixed(2) + ')',
+        'Lips: TICK',
+        'Blink: TICK (' + track.blinks + ', Base ' + track.baselineEar.toFixed(2) + ')',
+        'Lips Movement: TICK (Δ' + marDelta.toFixed(2) + ')',
+        'Ears: TICK (L & R Captured)',
+        'Operator: ' + OPERATOR.userName,
+        'Time: ' + formatTS()
+      ].join(' | ');
+
+      $('kycPreviewImg').src = kycPhotoBase64;
+      $('earLeftPreviewImg').src = track.ear1Img || kycPhotoBase64;
+      $('earRightPreviewImg').src = track.ear2Img || kycPhotoBase64;
+      $('kycSummaryText').textContent = kycSummaryStr;
+      $('kycPreviewBox').classList.remove('hidden');
+      stopKycCam();
+      updateSaveGate();
+    }
+
+    function drawSubtleLandmarks(ctx, w, h, lm, allOk) {
+      const dotColor = allOk ? 'rgba(74, 222, 128, 0.85)' : 'rgba(56, 189, 248, 0.78)';
+      ctx.fillStyle = dotColor;
+      const pts = [33, 133, 362, 263, 13, 14, 78, 308, 234, 454, 1];
+      for (const idx of pts) {
+        const p = lm[idx];
+        ctx.beginPath();
+        ctx.arc(p.x * w, p.y * h, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function loopKyc() {
+      const video = $('kycVideo');
+      const canvas = $('kycCanvas');
+      if (!kycStream) return;
+      const now = performance.now();
+
+      if (video.readyState >= 2 && video.currentTime !== lastVideoTime) {
+        lastVideoTime = video.currentTime;
+        if (canvas.width !== video.videoWidth) { canvas.width = video.videoWidth; canvas.height = video.videoHeight; }
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const res = landmarker.detectForVideo(video, now);
+        if (res.faceLandmarks && res.faceLandmarks.length > 0) {
+          const lm = res.faceLandmarks[0];
+          const blend = res.faceBlendshapes?.[0]?.categories || [];
+          const gb = (n) => blend.find(c => c.categoryName === n)?.score || 0;
+
+          const le = lm[234], re = lm[454], nose = lm[1], forehead = lm[10], chin = lm[152];
+          const faceW = Math.abs(re.x - le.x);
+          const inFrame = (
+            nose.x > 0.30 && nose.x < 0.70 &&
+            nose.y > 0.28 && nose.y < 0.68 &&
+            faceW > 0.18 && faceW < 0.75 &&
+            forehead.y > 0.04 && chin.y < 0.96
+          );
+          track.faceInFrameNow = inFrame;
+
+          // 1. Face Detection inside Outline Frame
+          if (inFrame) track.faceOk = true;
+
+          // Head Yaw
+          const yaw = ((nose.x - (le.x + re.x) / 2) / Math.max(0.01, faceW)) * 90;
+          track.minYaw = Math.min(track.minYaw, yaw);
+          track.maxYaw = Math.max(track.maxYaw, yaw);
+          if (track.maxYaw - track.minYaw >= 10) track.headOk = true;
+
+          // 3, 4 & 6. Left Eye, Right Eye & Improved Adaptive Blink Logic
+          const lEar = ear(lm, LEFT_EYE);
+          const rEar = ear(lm, RIGHT_EYE);
+          const avgEar = (lEar + rEar) / 2;
+          const bLeft = gb('eyeBlinkLeft');
+          const bRight = gb('eyeBlinkRight');
+          const bAvg = (bLeft + bRight) / 2;
+          const bBoth = Math.min(bLeft, bRight);
+
+          if (lEar > 0.05) track.lEyeOk = true;
+          if (rEar > 0.05) track.rEyeOk = true;
+          track.lEar = lEar;
+          track.rEar = rEar;
+
+          // Adaptively learn beneficiary's natural open-eye EAR baseline
+          if (bAvg < 0.25 && avgEar > 0.14 && Math.abs(yaw) < 25) {
+            track.baselineEar = track.baselineEar ? (track.baselineEar * 0.88 + avgEar * 0.12) : avgEar;
+          }
+          const earRatio = track.baselineEar > 0.12 ? (avgEar / track.baselineEar) : 1;
+
+          const eyesClosed = (Math.abs(yaw) < 35) && (
+            bAvg > 0.38 ||
+            bBoth > 0.30 ||
+            (track.baselineEar > 0.14 && earRatio < 0.72) ||
+            avgEar < 0.17
+          );
+          const eyesOpen = (bAvg < 0.24) && (
+            (track.baselineEar > 0.14 && earRatio > 0.82) ||
+            avgEar > 0.21
+          );
+
+          if (eyesClosed && !track.wasClosed) {
+            track.wasClosed = true;
+            track.closeAt = now;
+          } else if (track.wasClosed && eyesOpen) {
+            const dur = now - track.closeAt;
+            const sinceLast = now - track.lastBlinkAt;
+            if (dur >= 35 && dur <= 2200 && sinceLast >= 240) {
+              track.blinks++;
+              track.lastBlinkAt = now;
+            }
+            track.wasClosed = false;
+          } else if (track.wasClosed && (now - track.closeAt > 2500)) {
+            track.wasClosed = false;
+          }
+
+          // 5 & 7. Lips Detected & Lips Movement
+          const mar = dist(lm[13], lm[14]) / Math.max(0.001, dist(lm[78], lm[308]));
+          if (dist(lm[78], lm[308]) > 0.02) track.lipsOk = true;
+          if (mar > 0) {
+            track.minMar = Math.min(track.minMar, mar);
+            track.maxMar = Math.max(track.maxMar, mar);
+          }
+          const smile = Math.max(gb('mouthSmileLeft'), gb('mouthSmileRight'));
+          if (track.maxMar - track.minMar > 0.065 || gb('jawOpen') > 0.14 || smile > 0.28) track.lipOk = true;
+
+          // 8. Ear Capture (Left & Right Ear Regions)
+          const ear1Bounds = le.x > 0.03 && le.x < 0.97 && le.y > 0.08 && le.y < 0.92;
+          const ear2Bounds = re.x > 0.03 && re.x < 0.97 && re.y > 0.08 && re.y < 0.92;
+
+          if (inFrame && ear1Bounds && yaw >= -14) {
+            if (!track.ear1Ok || (yaw > track.bestEar1Yaw && yaw <= 28)) {
+              const crop1 = cropEarFromVideo(video, lm, 234, -1, kycFacing);
+              if (crop1) {
+                track.ear1Img = crop1;
+                track.ear1Ok = true;
+                track.bestEar1Yaw = yaw;
+              }
+            }
+          }
+          if (inFrame && ear2Bounds && yaw <= 14) {
+            if (!track.ear2Ok || (yaw < track.bestEar2Yaw && yaw >= -28)) {
+              const crop2 = cropEarFromVideo(video, lm, 454, 1, kycFacing);
+              if (crop2) {
+                track.ear2Img = crop2;
+                track.ear2Ok = true;
+                track.bestEar2Yaw = yaw;
+              }
+            }
+          }
+
+          const allOk = updateRdChecklist(yaw, mar);
+          drawSubtleLandmarks(ctx, canvas.width, canvas.height, lm, allOk);
+
+          if (!inFrame) {
+            setOutlineVisual('idle');
+            $('frameGuideBadge').className = 'frame-guide-pill';
+            $('frameGuideBadge').textContent = faceW <= 0.18 ? 'Move closer into frame' : 'Center face inside outline frame';
+            $('kycInstruction').textContent = 'Put beneficiary face inside the outline frame';
+          } else if (allOk) {
+            setOutlineVisual('ready');
+            $('frameGuideBadge').className = 'frame-guide-pill ready';
+            $('frameGuideBadge').textContent = '8/8 Verified — Tap Capture Now';
+            $('kycInstruction').textContent = 'Face aligned & verified! Tap Capture to save details';
+          } else {
+            setOutlineVisual('aligned');
+            $('frameGuideBadge').className = 'frame-guide-pill aligned';
+            $('frameGuideBadge').textContent = 'Face in frame — Complete checks';
+            $('kycInstruction').textContent = (!track.lEyeOk || !track.rEyeOk)
+              ? 'Keep both eyes visible inside frame'
+              : !track.lipsOk
+                ? 'Show lips clearly inside frame'
+                : track.blinks < 2
+                  ? 'Blink eyes naturally (' + track.blinks + '/2)'
+                  : !track.lipOk
+                    ? 'Open mouth slightly or smile'
+                    : (!track.headOk || !track.ear1Ok || !track.ear2Ok)
+                      ? 'Turn head slightly left & right for Ear Capture'
+                      : 'Keep face inside frame';
+          }
+        } else {
+          track.faceInFrameNow = false;
+          setOutlineVisual('idle');
+          $('frameGuideBadge').className = 'frame-guide-pill';
+          $('frameGuideBadge').textContent = 'Place face inside outline frame';
+          $('kycInstruction').textContent = 'No face detected — position beneficiary in frame';
+        }
+      }
+      kycRaf = requestAnimationFrame(loopKyc);
+    }
+
+    $('btnStartKyc').onclick = () => startKycCam(kycFacing);
+    $('btnKycFlip').onclick = () => { kycFacing = kycFacing === 'user' ? 'environment' : 'user'; startKycCam(kycFacing); };
+    $('btnKycClose').onclick = stopKycCam;
+    $('btnKycCaptureNow').onclick = captureKycFrame;
+    $('btnKycSnapOverlay').onclick = captureKycFrame;
+    $('btnKycClear').onclick = () => {
+      kycPhotoBase64 = '';
+      kycSummaryStr = '';
+      kycAllPassed = false;
+      $('kycPreviewBox').classList.add('hidden');
+      updateSaveGate();
+    };
+
+    $('remarksSelect').onchange = updateSaveGate;
+
+    $('verifyForm').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!selectedRow) return;
+      const remarks = $('remarksSelect').value;
+      if (!remarks) { showAlert('Please select Remarks.', true); return; }
+
+      const existingAlive = String(selectedRow.beneficiaryKycData || '').includes('ALIVE_VERIFIED');
+      const faceRdPassed = kycSummaryStr ? kycAllPassed : existingAlive;
+      const lifeCertReady = Boolean(formPhotoBase64 || selectedRow.lifeCertificateForm);
+
+      if (remarks === 'Alive' && !faceRdPassed) {
+        showAlert('Cannot save: All 8 Face RD & Ear checks must show green ticks and be captured.', true);
+        return;
+      }
+      if (remarks === 'Alive' && !lifeCertReady) {
+        showAlert('For Alive status, capture or upload the Life Certificate Form photo.', true);
+        return;
+      }
+      $('btnSaveRecord').disabled = true;
+      $('btnSaveRecord').textContent = 'Saving...';
+      try {
+        const res = await apiPost({
+          action: 'updateBeneficiary',
+          rowNumber: selectedRow.rowNumber,
+          beneficiaryId: selectedRow.beneficiaryId,
+          gpWard: selectedRow.gpWard,
+          remarks,
+          lifeCertificateBase64: formPhotoBase64,
+          lifeCertificateText: selectedRow.lifeCertificateForm,
+          beneficiaryKycSummary: kycSummaryStr || selectedRow.beneficiaryKycData,
+          beneficiaryKycPhotoBase64: kycPhotoBase64,
+          userName: OPERATOR.userName,
+          date: formatDDMMYYYY(),
+          timeStamp: formatTS(),
+        });
+        if (!res.ok) {
+          showAlert(res.error || 'Failed to save record.', true);
+          return;
+        }
+        Object.assign(selectedRow, res.updated);
+        writeLocalCache(allRecords);
+        updateStats();
+        renderList();
+        $('editView').classList.add('hidden');
+        $('listView').classList.remove('hidden');
+        showAlert('Saved ' + selectedRow.applicantName + ' (' + remarks + ').', false);
+      } catch (err) {
+        showAlert(err.message || 'Save failed.', true);
+      } finally {
+        updateSaveGate();
+      }
+    };
+
+    $('searchInput').oninput = renderList;
+    $('statusFilter').onchange = renderList;
+    $('btnSync').onclick = () => syncFromSheet(true);
+
+    checkCamPerm();
+    initData();
+  </script>
 </body>
 </html>
